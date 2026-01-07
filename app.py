@@ -224,7 +224,15 @@ if model_choice == "Random Forest (Ensemble)":
 ##############################################
 # BLIND SPOT ANALYSIS
 ##############################################
-st.subheader("⚠️ Blind Spot / Subgroup Error Analysis")
+st.markdown(
+    """
+    <h5 style='color:#0b2e73;'>
+        ⚠️ Blind Spot / Subgroup Error Analysis
+    </h5>
+    """,
+    unsafe_allow_html=True
+)
+
 
 blind_df = X_test.copy()
 blind_df["actual"] = y_test
@@ -251,7 +259,14 @@ for g in available:
 ##############################################
 # CMBS CHECK
 ##############################################
-st.subheader("🧠 CMBS — Collective Model Blind Spot Check")
+st.markdown(
+    """
+    <h5 style='color:#0b2e73;'>
+        🧠 CMBS — Collective Model Blind Spot Check
+    </h5>
+    """,
+    unsafe_allow_html=True
+)
 
 blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
 blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
