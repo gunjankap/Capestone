@@ -1,5 +1,5 @@
 ##############################################
-# STREAMLIT APP – BIKE SHARING AI ANALYSIS
+# STREAMLIT APP – BIKE + AQI AI ANALYSIS
 ##############################################
 
 import streamlit as st
@@ -16,37 +16,67 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-st.set_page_config(page_title="Bike Sharing AI Model Analysis",
-                   page_icon="🚴‍♀️", layout="wide")
+st.set_page_config(page_title="AI Model Evaluation Dashboard",
+                   page_icon="📊", layout="wide")
 
 ##############################################
 # LOAD DATA
 ##############################################
 @st.cache_data
-def load_data():
+def load_bike():
     day = pd.read_csv("day.csv")
     hour = pd.read_csv("hour.csv")
 
     drop_cols = ["instant","dteday","casual","registered"]
     day = day.drop(columns=[c for c in drop_cols if c in day.columns])
     hour = hour.drop(columns=[c for c in drop_cols if c in hour.columns])
-
     return day, hour
 
-day, hour = load_data()
+@st.cache_data
+def load_aqi():
+    df = pd.read_csv("aqi.csv")
+    # clean column names
+    df.columns = df.columns.str.strip()
+    # drop non-numeric for ML
+    keep = df.select_dtypes(include=np.number)
+    return df, keep
+
+day, hour = load_bike()
+aqi_raw, aqi = load_aqi()
 
 ##############################################
 # Sidebar
 ##############################################
-st.sidebar.title("🚴 Bike Sharing Analysis")
-dataset_choice = st.sidebar.selectbox("Choose Dataset", ["Day", "Hour"])
+st.sidebar.title("📊 AI Model Analysis")
+
+dataset_choice = st.sidebar.selectbox(
+    "Choose Dataset",
+    ["Day", "Hour", "AQI"]
+)
+
 model_choice = st.sidebar.selectbox(
     "Choose Model", 
     ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"]
 )
 
-df = day if dataset_choice=="Day" else hour
-target = "cnt"
+##############################################
+# DATASET HANDLING
+##############################################
+if dataset_choice == "Day":
+    df = day.copy()
+    target = "cnt"
+
+elif dataset_choice == "Hour":
+    df = hour.copy()
+    target = "cnt"
+
+else:
+    st.sidebar.markdown("### AQI Target Selection")
+    target = st.sidebar.selectbox(
+        "Select Prediction Target",
+        [c for c in aqi.columns if c not in ["Date","Time"]]
+    )
+    df = aqi.copy()
 
 ##############################################
 # Split & Scale
@@ -87,9 +117,11 @@ model, preds = build_model(model_choice)
 ##############################################
 # UI Layout
 ##############################################
-st.title("🚴 Bike Sharing AI Model Evaluation Dashboard")
-st.markdown(f"### Dataset Used: **{dataset_choice}**")
+st.title("📊 AI Model Evaluation Dashboard")
+
+st.markdown(f"### Dataset: **{dataset_choice}**")
 st.markdown(f"### Model: **{model_choice}**")
+st.markdown(f"### Target: **{target}**")
 
 ##############################################
 # Metrics
@@ -104,16 +136,16 @@ c3.metric("R² Score", round(r2_score(y_test, preds),3))
 ##############################################
 fig, ax = plt.subplots()
 sns.scatterplot(x=y_test, y=preds, ax=ax)
-ax.set_xlabel("Actual Count")
-ax.set_ylabel("Predicted Count")
-ax.set_title("Actual vs Predicted Bike Demand")
+ax.set_xlabel("Actual Values")
+ax.set_ylabel("Predicted Values")
+ax.set_title("Actual vs Predicted")
 st.pyplot(fig)
 
 ##############################################
-# FEATURE IMPORTANCE (Explainability Alternative to SHAP)
+# FEATURE IMPORTANCE
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
-    st.subheader("🔍 Feature Importance (Explainability)")
+    st.subheader("🔍 Feature Importance")
     feat_imp = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
     st.bar_chart(feat_imp)
 
@@ -122,12 +154,20 @@ if model_choice == "Random Forest (Ensemble)":
 ##############################################
 st.subheader("⚠️ Blind Spot / Subgroup Error Analysis")
 
-group_cols = ["season","weathersit","workingday"]
-available = [g for g in group_cols if g in df.columns]
-
 blind_df = X_test.copy()
 blind_df["actual"] = y_test
 blind_df["pred"] = preds
+
+# Bike Grouping
+if dataset_choice in ["Day","Hour"]:
+    group_cols = ["season","weathersit","workingday"]
+    available = [g for g in group_cols if g in df.columns]
+
+# AQI Grouping
+else:
+    blind_df["TEMP_BIN"] = pd.qcut(blind_df.iloc[:,0], 4, duplicates="drop")
+    blind_df["HUM_BIN"] = pd.qcut(blind_df.iloc[:,1], 4, duplicates="drop")
+    available = ["TEMP_BIN","HUM_BIN"]
 
 for g in available:
     st.write(f"### Subgroup RMSE by **{g}**")
@@ -167,4 +207,5 @@ for g in available:
     st.table(cmbs_check(blind_df, g))
 
 st.success("Analysis Completed Successfully ✅")
+
 
