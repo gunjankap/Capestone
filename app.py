@@ -287,7 +287,10 @@ st.markdown("""
 c1, c2, c3 = st.columns(3)
 
 with c1:
-    st.markdown("<div class='small-title'>Subgroup RMSE — season</div>", unsafe_allow_html=True)
+    st.markdown(
+    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — season</div>",
+    unsafe_allow_html=True
+)
     st.markdown('<div class="small-table">', unsafe_allow_html=True)
     st.dataframe(season_rmse, use_container_width=True, height=180)
     st.markdown("</div>", unsafe_allow_html=True)
