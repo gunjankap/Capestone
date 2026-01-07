@@ -217,7 +217,14 @@ with c3:
 # FEATURE IMPORTANCE
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
-    st.subheader("🔍 Feature Importance")
+    st.markdown(
+        """
+        <h4 style='text-align:center; color:#0b2e73;'>
+            🔍 Feature Importance
+        </h4>
+        """,
+        unsafe_allow_html=True
+    )
 
     feat_imp = (
         pd.Series(model.feature_importances_, index=X.columns)
