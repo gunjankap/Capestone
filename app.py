@@ -296,13 +296,19 @@ with c1:
     st.markdown("</div>", unsafe_allow_html=True)
 
 with c2:
-    st.markdown("<div class='small-title'>Subgroup RMSE — weathersit</div>", unsafe_allow_html=True)
+    st.markdown(
+    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — weathersit</div>",
+    unsafe_allow_html=True
+)
     st.markdown('<div class="small-table">', unsafe_allow_html=True)
     st.dataframe(weather_rmse, use_container_width=True, height=180)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with c3:
-    st.markdown("<div class='small-title'>Subgroup RMSE — workingday</div>", unsafe_allow_html=True)
+    st.markdown(
+    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — workingday</div>",
+    unsafe_allow_html=True
+)
     st.markdown('<div class="small-table">', unsafe_allow_html=True)
     st.dataframe(working_rmse, use_container_width=True, height=180)
     st.markdown("</div>", unsafe_allow_html=True)
