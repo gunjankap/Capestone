@@ -250,11 +250,25 @@ else:
     available = ["TEMP_BIN","HUM_BIN"]
 
 for g in available:
-    st.write(f"### Subgroup RMSE by **{g}**")
-    subgroup_rmse = blind_df.groupby(g).apply(
-        lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+    
+    st.markdown(
+        f"""
+        <div style='font-size:12px; 
+                    color:#0b2e73; 
+                    font-weight:600; 
+                    margin-bottom:2px;'>
+            Subgroup RMSE by {g}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-    st.table(subgroup_rmse)
+
+    st.table(
+        blind_df.groupby(g).apply(
+            lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+        )
+    )
+
 
 ##############################################
 # CMBS CHECK
