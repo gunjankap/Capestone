@@ -5,7 +5,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import shap
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -15,9 +14,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+
 
 st.set_page_config(page_title="Bike Sharing AI Model Analysis",
                    page_icon="🚴‍♀️", layout="wide")
@@ -44,7 +41,7 @@ day, hour = load_data()
 st.sidebar.title("🚴 Bike Sharing Analysis")
 dataset_choice = st.sidebar.selectbox("Choose Dataset", ["Day", "Hour"])
 model_choice = st.sidebar.selectbox("Choose Model", 
-    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)", "Neural Network"])
+    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"])
 
 st.sidebar.info("Upload default dataset format only")
 
@@ -127,22 +124,9 @@ st.pyplot(fig)
 # SHAP ANALYSIS (Only For Random Forest)
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
-    st.subheader("🔍 SHAP Explainability")
-
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_test)
-
-    st.write("**Feature Importance (Impact on Prediction)**")
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
-    st.pyplot(bbox_inches="tight")
-    plt.clf()
-
-    st.write("**Detailed Feature Impact Distribution**")
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, X_test, show=False)
-    st.pyplot(bbox_inches="tight")
-    plt.clf()
+    st.subheader("Feature Importance")
+    feat_imp = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
+    st.bar_chart(feat_imp)
 
 ##############################################
 # BLIND SPOT ANALYSIS
