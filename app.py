@@ -161,7 +161,10 @@ div[data-testid="metric-container"] > div > div:nth-child(2) {
 </style>
 """, unsafe_allow_html=True)
 
-
+c1, c2, c3 = st.columns(3) 
+c1.metric("MAE", round(mean_absolute_error(y_test, preds),2))
+c2.metric("RMSE", round(np.sqrt(mean_squared_error(y_test, preds)),2))
+c3.metric("R² Score", round(r2_score(y_test, preds),3))
 
 ##############################################
 # Actual vs Pred Plot
