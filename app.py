@@ -147,10 +147,20 @@ st.markdown(
 ##############################################
 # Metrics
 ##############################################
-c1, c2, c3 = st.columns(3)
-c1.metric("MAE", round(mean_absolute_error(y_test, preds),2))
-c2.metric("RMSE", round(np.sqrt(mean_squared_error(y_test, preds)),2))
-c3.metric("R² Score", round(r2_score(y_test, preds),3))
+st.markdown("""
+<style>
+div[data-testid="metric-container"] > div > div {
+    font-size: 14px !important; /* title font */
+}
+
+div[data-testid="metric-container"] > div > div:nth-child(2) {
+    font-size: 22px !important; /* value font */
+    font-weight: 700 !important;
+    color:#0b2e73;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 ##############################################
