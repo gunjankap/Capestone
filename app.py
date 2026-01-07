@@ -147,24 +147,26 @@ st.markdown(
 ##############################################
 # Metrics
 ##############################################
-st.markdown("""
-<style>
-div[data-testid="metric-container"] > div > div {
-    font-size: 14px !important; /* title font */
-}
 
-div[data-testid="metric-container"] > div > div:nth-child(2) {
-    font-size: 22px !important; /* value font */
-    font-weight: 700 !important;
-    color:#0b2e73;
-}
-</style>
-""", unsafe_allow_html=True)
+mae = round(mean_absolute_error(y_test, preds),2)
+rmse = round(np.sqrt(mean_squared_error(y_test, preds)),2)
+r2 = round(r2_score(y_test, preds),3)
 
-c1, c2, c3 = st.columns(3) 
-c1.metric("MAE", round(mean_absolute_error(y_test, preds),2))
-c2.metric("RMSE", round(np.sqrt(mean_squared_error(y_test, preds)),2))
-c3.metric("R² Score", round(r2_score(y_test, preds),3))
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>MAE</h5>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{mae}</p>", unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>RMSE</h5>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{rmse}</p>", unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>R2 Score</h5>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{r2}</p>", unsafe_allow_html=True)
+
+
 
 ##############################################
 # Actual vs Pred Plot
