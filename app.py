@@ -231,13 +231,9 @@ if model_choice == "Random Forest (Ensemble)":
         .sort_values(ascending=False)
     )
 
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
     fig, ax = plt.subplots(figsize=(4.5,3.2))     # Smaller Plot Size
     sns.barplot(x=feat_imp.values, y=feat_imp.index, color="#2e7fe8", ax=ax)
-
-    ax.set_title("Feature Importance", fontsize=11, color="#0b2e73")
+  
     ax.set_xlabel("Importance", fontsize=9)
     ax.set_ylabel("Feature", fontsize=9)
     ax.tick_params(axis='both', labelsize=8)
