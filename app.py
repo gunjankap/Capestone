@@ -171,12 +171,38 @@ with c3:
 ##############################################
 # Actual vs Pred Plot
 ##############################################
-fig, ax = plt.subplots()
-sns.scatterplot(x=y_test, y=preds, ax=ax)
-ax.set_xlabel("Actual Values")
-ax.set_ylabel("Predicted Values")
-ax.set_title("Actual vs Predicted")
-st.pyplot(fig)
+c1, c2, c3 = st.columns(3)
+
+# -------- VISUAL 1: Actual vs Predicted --------
+with c1:
+    fig, ax = plt.subplots(figsize=(3.5,3.5))
+    sns.scatterplot(x=y_test, y=preds, s=12, color="#2e7fe8", ax=ax)
+    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 
+            '--', color='gray', linewidth=1)
+    ax.set_title("Actual vs Predicted", fontsize=10)
+    ax.set_xlabel("Actual", fontsize=8)
+    ax.set_ylabel("Predicted", fontsize=8)
+    st.pyplot(fig)
+
+# -------- VISUAL 2: Residual Plot --------
+with c2:
+    residuals = y_test - preds
+    fig, ax = plt.subplots(figsize=(3.5,3.5))
+    sns.scatterplot(x=preds, y=residuals, s=12, color="#e86f2e", ax=ax)
+    ax.axhline(0, color='gray', linestyle='--', linewidth=1)
+    ax.set_title("Residual Plot", fontsize=10)
+    ax.set_xlabel("Predicted", fontsize=8)
+    ax.set_ylabel("Residuals", fontsize=8)
+    st.pyplot(fig)
+
+# -------- VISUAL 3: Error Distribution --------
+with c3:
+    fig, ax = plt.subplots(figsize=(3.5,3.5))
+    sns.histplot(residuals, kde=True, color="#4c9c4c", ax=ax)
+    ax.set_title("Prediction Error Distribution", fontsize=10)
+    ax.set_xlabel("Error", fontsize=8)
+    ax.set_ylabel("Count", fontsize=8)
+    st.pyplot(fig)
 
 ##############################################
 # FEATURE IMPORTANCE
