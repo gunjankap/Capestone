@@ -14,7 +14,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-
+from sklearn.ensemble import RandomForestRegressor
 
 st.set_page_config(page_title="Bike Sharing AI Model Analysis",
                    page_icon="🚴‍♀️", layout="wide")
@@ -40,10 +40,10 @@ day, hour = load_data()
 ##############################################
 st.sidebar.title("🚴 Bike Sharing Analysis")
 dataset_choice = st.sidebar.selectbox("Choose Dataset", ["Day", "Hour"])
-model_choice = st.sidebar.selectbox("Choose Model", 
-    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"])
-
-st.sidebar.info("Upload default dataset format only")
+model_choice = st.sidebar.selectbox(
+    "Choose Model", 
+    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"]
+)
 
 df = day if dataset_choice=="Day" else hour
 target = "cnt"
@@ -75,23 +75,12 @@ def build_model(name):
         model.fit(X_train, y_train)
         preds = model.predict(X_test)
 
-    elif name == "Random Forest (Ensemble)":
+    else:
         model = RandomForestRegressor(n_estimators=220, random_state=42)
         model.fit(X_train, y_train)
         preds = model.predict(X_test)
 
-    else:
-        model = Sequential([
-            Dense(64, activation="relu", input_shape=(X_train_s.shape[1],)),
-            Dense(32, activation="relu"),
-            Dense(1)
-        ])
-        model.compile(optimizer="adam", loss="mse")
-        model.fit(X_train_s, y_train, epochs=40, verbose=0)
-        preds = model.predict(X_test_s).ravel()
-
     return model, preds
-
 
 model, preds = build_model(model_choice)
 
@@ -99,8 +88,8 @@ model, preds = build_model(model_choice)
 # UI Layout
 ##############################################
 st.title("🚴 Bike Sharing AI Model Evaluation Dashboard")
-st.markdown("### Dataset Used: **{}**".format(dataset_choice))
-st.markdown("### Model: **{}**".format(model_choice))
+st.markdown(f"### Dataset Used: **{dataset_choice}**")
+st.markdown(f"### Model: **{model_choice}**")
 
 ##############################################
 # Metrics
@@ -121,10 +110,10 @@ ax.set_title("Actual vs Predicted Bike Demand")
 st.pyplot(fig)
 
 ##############################################
-# SHAP ANALYSIS (Only For Random Forest)
+# FEATURE IMPORTANCE (Explainability Alternative to SHAP)
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
-    st.subheader("Feature Importance")
+    st.subheader("🔍 Feature Importance (Explainability)")
     feat_imp = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
     st.bar_chart(feat_imp)
 
@@ -152,18 +141,13 @@ for g in available:
 ##############################################
 st.subheader("🧠 CMBS — Collective Model Blind Spot Check")
 
-# Train baseline 3 models
-def get_preds(model):
-    m = model.fit(X_train, y_train)
-    return m.predict(X_test)
-
 blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
 blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
 blind_df["rf"] = RandomForestRegressor(n_estimators=200).fit(X_train, y_train).predict(X_test)
 
 def cmbs_check(df, group_col, preds=["lr","tree","rf"], threshold=0.25):
     results = {}
-    base = np.sqrt(mean_squared_error(df["actual"], df["rf"])) # baseline
+    base = np.sqrt(mean_squared_error(df["actual"], df["rf"])) 
 
     for g in df[group_col].unique():
         sub = df[df[group_col]==g]
@@ -183,3 +167,4 @@ for g in available:
     st.table(cmbs_check(blind_df, g))
 
 st.success("Analysis Completed Successfully ✅")
+
