@@ -117,11 +117,32 @@ model, preds = build_model(model_choice)
 ##############################################
 # UI Layout
 ##############################################
-st.title("📊 AI Model Evaluation Dashboard")
+st.markdown(
+    """
+    <h1 style="
+        text-align:center; 
+        color:#0a2a66; 
+        font-style:italic;
+        font-weight:800;
+    ">
+        ✨🤖 AI Model Evaluation Dashboard 🚀
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
-st.markdown(f"### Dataset: **{dataset_choice}**")
-st.markdown(f"### Model: **{model_choice}**")
-st.markdown(f"### Target: **{target}**")
+st.markdown(
+    f"""
+    <div style="font-size:18px; font-weight:600; padding:8px; 
+                border-radius:8px; background:#f7f9fc;">
+        Dataset: <span style="color:#2e7fe8">{dataset_choice}</span> |
+        Model: <span style="color:#2e7fe8">{model_choice}</span> |
+        Target: <span style="color:#2e7fe8">{target}</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 ##############################################
 # Metrics
