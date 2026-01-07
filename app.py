@@ -347,9 +347,54 @@ def cmbs_check(df, group_col, preds=["lr","tree","rf"], threshold=0.25):
         results[g] = res
     return pd.DataFrame(results).T
 
-for g in available:
-    st.write(f"### CMBS Results by **{g}**")
-    st.table(cmbs_check(blind_df, g))
+# ---------- CREATE CMBS TABLES ----------
+season_cmbs = cmbs_check(blind_df, "season").reset_index().rename(columns={"index":"season"})
+weather_cmbs = cmbs_check(blind_df, "weathersit").reset_index().rename(columns={"index":"weathersit"})
+working_cmbs = cmbs_check(blind_df, "workingday").reset_index().rename(columns={"index":"workingday"})
+
+
+# ---------- SMALL TABLE CSS ----------
+st.markdown("""
+<style>
+.small-table-cmbs table {
+    font-size:11px !important;
+}
+.small-table-cmbs th {
+    font-size:11px !important;
+    color:#0b2e73;
+}
+.cmbs-title{
+    font-size:14px;
+    color:#0b2e73;
+    font-weight:700;
+    text-align:center;
+    margin-bottom:4px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ---------- 3 TABLES SIDE BY SIDE ----------
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.markdown("<div class='cmbs-title'>CMBS Results — season</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
+    st.dataframe(season_cmbs, use_container_width=True, height=200)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with c2:
+    st.markdown("<div class='cmbs-title'>CMBS Results — weathersit</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
+    st.dataframe(weather_cmbs, use_container_width=True, height=200)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with c3:
+    st.markdown("<div class='cmbs-title'>CMBS Results — workingday</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
+    st.dataframe(working_cmbs, use_container_width=True, height=200)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 st.success("Analysis Completed Successfully ✅")
 
