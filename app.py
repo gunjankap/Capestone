@@ -396,6 +396,19 @@ with c3:
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-st.success("Analysis Completed Successfully ✅")
+st.markdown("""
+<div style="
+    background:linear-gradient(135deg, #e8f0ff, #ffffff);
+    padding:12px 18px;
+    border-radius:10px;
+    border:1px solid #d6e1ff;
+    text-align:center;
+    font-size:15px;
+    color:#0b2e73;
+    font-weight:700;">
+✨ Analysis Completed Successfully — Results Ready!
+</div>
+""", unsafe_allow_html=True)
+
 
 
