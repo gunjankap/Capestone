@@ -5,7 +5,7 @@ seaborn
 plotly
 matplotlib
 scikit-learn
-shap==0.44.1
+shap==0.45.1
 numba==0.58.1
 llvmlite==0.41.1
-tensorflow-cpu
+
