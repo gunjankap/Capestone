@@ -147,66 +147,10 @@ st.markdown(
 ##############################################
 # Metrics
 ##############################################
-mae = round(mean_absolute_error(y_test, preds),2)
-rmse = round(np.sqrt(mean_squared_error(y_test, preds)),2)
-r2 = round(r2_score(y_test, preds),3)
-
-st.markdown("""
-<style>
-.metric-container{
-    display:flex;
-    justify-content: center;
-    gap:18px;
-    margin-top:10px;
-}
-
-.metric-card{
-    background:#f6f8ff;
-    padding:10px 18px;
-    border-radius:12px;
-    border:1px solid #e2e6ff;
-    text-align:center;
-    min-width:130px;
-}
-
-.metric-title{
-    color:#5a6bbf;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.5px;
-}
-
-.metric-value{
-    color:#0b2e73;
-    font-size:18px;
-    font-weight:700;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown(
-    f"""
-    <div class="metric-container">
-
-        <div class="metric-card">
-            <div class="metric-title">MAE</div>
-            <div class="metric-value">{mae}</div>
-        </div>
-
-        <div class="metric-card">
-            <div class="metric-title">RMSE</div>
-            <div class="metric-value">{rmse}</div>
-        </div>
-
-        <div class="metric-card">
-            <div class="metric-title">R2 Score</div>
-            <div class="metric-value">{r2}</div>
-        </div>
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+c1, c2, c3 = st.columns(3)
+c1.metric("MAE", round(mean_absolute_error(y_test, preds),2))
+c2.metric("RMSE", round(np.sqrt(mean_squared_error(y_test, preds)),2))
+c3.metric("R² Score", round(r2_score(y_test, preds),3))
 
 
 ##############################################
