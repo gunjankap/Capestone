@@ -249,25 +249,60 @@ else:
     blind_df["HUM_BIN"] = pd.qcut(blind_df.iloc[:,1], 4, duplicates="drop")
     available = ["TEMP_BIN","HUM_BIN"]
 
-for g in available:
-    
-    st.markdown(
-        f"""
-        <div style='font-size:12px; 
-                    color:#0b2e73; 
-                    font-weight:600; 
-                    margin-bottom:2px;'>
-            Subgroup RMSE by {g}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+# -------- Create Tables --------
+season_rmse = blind_df.groupby("season").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
 
-    st.table(
-        blind_df.groupby(g).apply(
-            lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
-        )
-    )
+weather_rmse = blind_df.groupby("weathersit").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
+
+working_rmse = blind_df.groupby("workingday").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
+
+
+# -------- SMALL TABLE CSS --------
+st.markdown("""
+<style>
+.small-table table {
+    font-size:11px !important;
+}
+.small-table th {
+    font-size:11px !important;
+    color:#0b2e73;
+}
+.small-title{
+    font-size:12px;
+    color:#0b2e73;
+    font-weight:600;
+    margin-bottom:4px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# -------- 3 TABLES SIDE BY SIDE --------
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.markdown("<div class='small-title'>Subgroup RMSE — season</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table">', unsafe_allow_html=True)
+    st.dataframe(season_rmse, use_container_width=True, height=180)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with c2:
+    st.markdown("<div class='small-title'>Subgroup RMSE — weathersit</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table">', unsafe_allow_html=True)
+    st.dataframe(weather_rmse, use_container_width=True, height=180)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with c3:
+    st.markdown("<div class='small-title'>Subgroup RMSE — workingday</div>", unsafe_allow_html=True)
+    st.markdown('<div class="small-table">', unsafe_allow_html=True)
+    st.dataframe(working_rmse, use_container_width=True, height=180)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 ##############################################
