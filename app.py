@@ -199,7 +199,7 @@ st.markdown(
         </div>
 
         <div class="metric-card">
-            <div class="metric-title">R² Score</div>
+            <div class="metric-title">R2 Score</div>
             <div class="metric-value">{r2}</div>
         </div>
 
