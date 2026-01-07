@@ -171,6 +171,15 @@ with c3:
 ##############################################
 # Actual vs Pred Plot
 ##############################################
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        📊 Model Performance Diagnostics
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
 c1, c2, c3 = st.columns(3)
 
 # -------- VISUAL 1: Actual vs Predicted --------
