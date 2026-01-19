@@ -214,6 +214,7 @@ with c3:
     st.pyplot(fig)
 
 # ================= FEATURE IMPORTANCE =================
+# ================= FEATURE IMPORTANCE =================
 if model_choice == "Random Forest (Ensemble)":
 
     feat_imp = (
@@ -224,33 +225,24 @@ if model_choice == "Random Forest (Ensemble)":
     # ---- Top 5 Features ----
     top_feat = feat_imp.head(5)
 
-     fig, ax = plt.subplots(figsize=(3.5,3.5))  # 👈 smaller figure
+    fig, ax = plt.subplots(figsize=(3.0, 2.2))  # compact figure
 
-sns.barplot(
-    x=top_feat.values,
-    y=top_feat.index,
-    color="#2e7fe8",
-    ax=ax
-)
+    sns.barplot(
+        x=top_feat.values,
+        y=top_feat.index,
+        color="#2e7fe8",
+        ax=ax
+    )
 
-st.markdown(
-    """
-    <h4 style='text-align:center; color:#0b2e73;'>
-        📊 Model Performance Diagnostics
-    </h4>
-    """,
-    unsafe_allow_html=True
-)
+    ax.set_title("Top 5 Feature Importance", fontsize=9, color="#0b2e73")
+    ax.set_xlabel("Importance", fontsize=8)
+    ax.set_ylabel("")
 
-# ax.set_title("Top 5 Feature Importance", fontsize=9, color="#0b2e73")
-ax.set_xlabel("Importance", fontsize=8)
-ax.set_ylabel("", fontsize=8)
+    ax.tick_params(axis='x', labelsize=7)
+    ax.tick_params(axis='y', labelsize=7)
 
-ax.tick_params(axis='x', labelsize=7)
-ax.tick_params(axis='y', labelsize=5)
-
-plt.tight_layout(pad=0.5)   # 👈 reduces white space
-st.pyplot(fig)
+    plt.tight_layout(pad=0.5)
+    st.pyplot(fig)
 
 
 ##############################################
