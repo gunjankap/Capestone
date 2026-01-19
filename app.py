@@ -143,6 +143,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown(f"""
+<div style="font-size:12px; padding:8px; background:#ffffff;
+            border:1px dashed #d6e1ff;">
+<b>Data Snapshot</b><br>
+• Records: {df.shape[0]}<br>
+• Features: {X.shape[1]}<br>
+• Missing Values: {df.isna().sum().sum()}<br>
+• Target Range: {round(y.min(),1)} – {round(y.max(),1)}
+</div>
+""", unsafe_allow_html=True)
+
 
 ##############################################
 # Metrics
