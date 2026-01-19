@@ -213,37 +213,6 @@ with c3:
     ax.set_ylabel("Count", fontsize=8)
     st.pyplot(fig)
 
-##############################################
-# FEATURE IMPORTANCE
-##############################################
-if model_choice == "Random Forest (Ensemble)":
-
-    feat_imp = (
-        pd.Series(model.feature_importances_, index=X.columns)
-        .sort_values(ascending=False)
-        .head(3)   # 🔥 ONLY top 3
-    )
-
-    fig, ax = plt.subplots(figsize=(1.8, 1.6))  # 🔥 micro size
-
-    sns.barplot(
-        x=feat_imp.values,
-        y=feat_imp.index,
-        ax=ax,
-        color="#2e7fe8"
-    )
-
-    ax.set_title("Drivers", fontsize=8, pad=2)
-    ax.set_xlabel("")
-    ax.set_ylabel("")
-    ax.tick_params(axis='x', labelsize=6, length=0)
-    ax.tick_params(axis='y', labelsize=6, length=0)
-
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-
-    plt.tight_layout(pad=0.1)
-    st.pyplot(fig)
 
 
 ##############################################
