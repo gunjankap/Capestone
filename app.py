@@ -285,6 +285,17 @@ working_rmse = blind_df.groupby("workingday").apply(
     lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
 ).reset_index(name="RMSE")
 
+st.markdown("""
+<div style="font-size:13px; padding:12px;
+            background:#f4f6fc;
+            border-radius:8px;">
+<b>Key Observations</b><br>
+• High overall accuracy masks subgroup-specific failures.<br>
+• Certain conditions consistently exhibit elevated error rates.<br>
+• Ensemble agreement does not guarantee correctness.<br>
+• Blind spots persist across multiple model families.
+</div>
+""", unsafe_allow_html=True)
 
 # -------- SMALL TABLE CSS --------
 st.markdown("""
