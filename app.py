@@ -224,7 +224,7 @@ if model_choice == "Random Forest (Ensemble)":
     # ---- Top 5 Features ----
     top_feat = feat_imp.head(5)
 
-    fig, ax = plt.subplots(figsize=(3.0,2.2))   # 👈 smaller figure
+     fig, ax = plt.subplots(figsize=(3.5,3.5))  # 👈 smaller figure
 
 sns.barplot(
     x=top_feat.values,
@@ -247,7 +247,7 @@ ax.set_xlabel("Importance", fontsize=8)
 ax.set_ylabel("", fontsize=8)
 
 ax.tick_params(axis='x', labelsize=7)
-ax.tick_params(axis='y', labelsize=7)
+ax.tick_params(axis='y', labelsize=5)
 
 plt.tight_layout(pad=0.5)   # 👈 reduces white space
 st.pyplot(fig)
