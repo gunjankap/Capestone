@@ -369,18 +369,7 @@ with c3:
     st.dataframe(working_rmse, use_container_width=True, height=180)
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("""
-<div style="font-size:13px; padding:12px;
-            background:#fff;
-            border:1px solid #e0e6ff;
-            border-left:4px solid #d9534f;">
-<b>CMBS Interpretation</b><br>
-A subgroup is flagged as a Collective Model Blind Spot when multiple
-independent models simultaneously exhibit elevated error rates,
-indicating a structural data or representation issue rather than
-a model-specific weakness.
-</div>
-""", unsafe_allow_html=True)
+
 
 ##############################################
 # CMBS CHECK
@@ -393,7 +382,18 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
+st.markdown("""
+<div style="font-size:13px; padding:12px;
+            background:#fff;
+            border:1px solid #e0e6ff;
+            border-left:4px solid #d9534f;">
+<b>CMBS Interpretation</b><br>
+A subgroup is flagged as a Collective Model Blind Spot when multiple
+independent models simultaneously exhibit elevated error rates,
+indicating a structural data or representation issue rather than
+a model-specific weakness.
+</div>
+""", unsafe_allow_html=True)
 blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
 blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
 blind_df["rf"] = RandomForestRegressor(n_estimators=200).fit(X_train, y_train).predict(X_test)
