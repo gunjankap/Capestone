@@ -51,7 +51,7 @@ st.sidebar.title("📊 AI Model Analysis")
 
 dataset_choice = st.sidebar.selectbox(
     "Choose Dataset",
-    ["Day", "Hour", "AQI"]
+    ["Bike Dataset - Day", "Bike Dataset - Hour", "AQI"]
 )
 
 model_choice = st.sidebar.selectbox(
