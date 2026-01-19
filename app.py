@@ -62,11 +62,11 @@ model_choice = st.sidebar.selectbox(
 ##############################################
 # DATASET HANDLING
 ##############################################
-if dataset_choice == "Day":
+if dataset_choice == "Bike Dataset - Day":
     df = day.copy()
     target = "cnt"
 
-elif dataset_choice == "Hour":
+elif dataset_choice == "Bike Dataset - Hour":
     df = hour.copy()
     target = "cnt"
 
