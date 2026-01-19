@@ -224,6 +224,17 @@ with c3:
     ax.set_ylabel("Count", fontsize=8)
     st.pyplot(fig)
 
+pred_std = np.std(preds)
+
+st.markdown(f"""
+<div style="font-size:12px; padding:8px; background:#fff7f0;
+            border-left:4px solid #ff9f40;">
+<b>Prediction Stability Indicator</b><br>
+• Std Dev of Predictions: {round(pred_std,2)}<br>
+• Interpretation: Higher values indicate inconsistent model behavior across samples.
+</div>
+""", unsafe_allow_html=True)
+
 # ================= FEATURE IMPORTANCE =================
 if model_choice == "Random Forest (Ensemble)":
 
