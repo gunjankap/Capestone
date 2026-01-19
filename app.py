@@ -214,7 +214,6 @@ with c3:
     st.pyplot(fig)
 
 # ================= FEATURE IMPORTANCE =================
-# ================= FEATURE IMPORTANCE =================
 if model_choice == "Random Forest (Ensemble)":
 
     feat_imp = (
