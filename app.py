@@ -217,25 +217,31 @@ with c3:
 # FEATURE IMPORTANCE
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
+
     st.markdown(
-        """
-        <h4 style='text-align:center; color:#0b2e73;'>
-            🔍 Feature Importance
-        </h4>
-        """,
+        "<h4 style='text-align:center; color:#0b2e73;'>🔍 Top Feature Importance</h4>",
         unsafe_allow_html=True
     )
 
+    # Take only top 6 features
     feat_imp = (
         pd.Series(model.feature_importances_, index=X.columns)
         .sort_values(ascending=False)
+        .head(6)
     )
 
-    fig, ax = plt.subplots(figsize=(4.5,3.2))     # Smaller Plot Size
-    sns.barplot(x=feat_imp.values, y=feat_imp.index, color="#2e7fe8", ax=ax)
-  
-    ax.set_xlabel("Importance", fontsize=9)
-    ax.set_ylabel("Feature", fontsize=9)
+    fig, ax = plt.subplots(figsize=(3.5, 3.5))  # SAME size as diagnostics plots
+
+    sns.barplot(
+        x=feat_imp.values,
+        y=feat_imp.index,
+        ax=ax,
+        color="#2e7fe8"
+    )
+
+    ax.set_title("Top Drivers", fontsize=10)
+    ax.set_xlabel("Importance", fontsize=8)
+    ax.set_ylabel("", fontsize=8)
     ax.tick_params(axis='both', labelsize=8)
 
     plt.tight_layout()
