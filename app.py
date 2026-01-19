@@ -233,7 +233,16 @@ sns.barplot(
     ax=ax
 )
 
-ax.set_title("Top 5 Feature Importance", fontsize=9, color="#0b2e73")
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        📊 Model Performance Diagnostics
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+# ax.set_title("Top 5 Feature Importance", fontsize=9, color="#0b2e73")
 ax.set_xlabel("Importance", fontsize=8)
 ax.set_ylabel("", fontsize=8)
 
