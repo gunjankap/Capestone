@@ -184,7 +184,7 @@ c1, c2, c3 = st.columns(3)
 
 # -------- VISUAL 1: Actual vs Predicted --------
 with c1:
-    fig, ax = plt.subplots(figsize=(3.5,3.5))
+    fig, ax = plt.subplots(figsize=(3.5,3.5)
     sns.scatterplot(x=y_test, y=preds, s=12, color="#2e7fe8", ax=ax)
     ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 
             '--', color='gray', linewidth=1)
