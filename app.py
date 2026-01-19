@@ -221,10 +221,10 @@ if model_choice == "Random Forest (Ensemble)":
     feat_imp = (
         pd.Series(model.feature_importances_, index=X.columns)
         .sort_values(ascending=False)
-        .head(4)   # ONLY top 4
+        .head(3)   # 🔥 ONLY top 3
     )
 
-    fig, ax = plt.subplots(figsize=(2.4, 2.4))  # 🔥 very compact
+    fig, ax = plt.subplots(figsize=(1.8, 1.6))  # 🔥 micro size
 
     sns.barplot(
         x=feat_imp.values,
@@ -233,13 +233,16 @@ if model_choice == "Random Forest (Ensemble)":
         color="#2e7fe8"
     )
 
-    ax.set_title("Top Features", fontsize=9)
+    ax.set_title("Drivers", fontsize=8, pad=2)
     ax.set_xlabel("")
     ax.set_ylabel("")
-    ax.tick_params(axis='x', labelsize=7)
-    ax.tick_params(axis='y', labelsize=7)
+    ax.tick_params(axis='x', labelsize=6, length=0)
+    ax.tick_params(axis='y', labelsize=6, length=0)
 
-    plt.tight_layout(pad=0.4)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    plt.tight_layout(pad=0.1)
     st.pyplot(fig)
 
 
