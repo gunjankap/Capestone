@@ -218,19 +218,13 @@ with c3:
 ##############################################
 if model_choice == "Random Forest (Ensemble)":
 
-    st.markdown(
-        "<h4 style='text-align:center; color:#0b2e73;'>🔍 Top Feature Importance</h4>",
-        unsafe_allow_html=True
-    )
-
-    # Take only top 6 features
     feat_imp = (
         pd.Series(model.feature_importances_, index=X.columns)
         .sort_values(ascending=False)
-        .head(6)
+        .head(4)   # ONLY top 4
     )
 
-    fig, ax = plt.subplots(figsize=(3.5, 3.5))  # SAME size as diagnostics plots
+    fig, ax = plt.subplots(figsize=(2.4, 2.4))  # 🔥 very compact
 
     sns.barplot(
         x=feat_imp.values,
@@ -239,12 +233,13 @@ if model_choice == "Random Forest (Ensemble)":
         color="#2e7fe8"
     )
 
-    ax.set_title("Top Drivers", fontsize=10)
-    ax.set_xlabel("Importance", fontsize=8)
-    ax.set_ylabel("", fontsize=8)
-    ax.tick_params(axis='both', labelsize=8)
+    ax.set_title("Top Features", fontsize=9)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.tick_params(axis='x', labelsize=7)
+    ax.tick_params(axis='y', labelsize=7)
 
-    plt.tight_layout()
+    plt.tight_layout(pad=0.4)
     st.pyplot(fig)
 
 
