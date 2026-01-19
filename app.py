@@ -213,6 +213,13 @@ with c3:
     ax.set_ylabel("Count", fontsize=8)
     st.pyplot(fig)
 
+top_feat = feat_imp.head(5)
+
+fig, ax = plt.subplots(figsize=(3.5,2.8))
+sns.barplot(x=top_feat.values, y=top_feat.index, color="#2e7fe8", ax=ax)
+ax.set_title("Top 5 Feature Importance", fontsize=10)
+ax.tick_params(labelsize=8)
+st.pyplot(fig)
 
 
 ##############################################
