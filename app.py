@@ -19,6 +19,33 @@ from sklearn.ensemble import RandomForestRegressor
 st.set_page_config(page_title="AI Model Evaluation Dashboard",
                    page_icon="📊", layout="wide")
 
+# ---------- STUDENT & PROJECT HEADER ----------
+col1, col2 = st.columns([1, 6])
+
+with col1:
+    st.image("college_logo.jpg", width=90)
+
+with col2:
+    st.markdown(
+        """
+        <div style="line-height:1.6;">
+            <div style="font-size:16px; font-weight:700; color:#0b2e73;">
+                Gunjan Kapoor
+            </div>
+            <div style="font-size:13px; color:#333;">
+                Roll No: <b>EMBADTA24003</b>
+            </div>
+            <div style="font-size:13px; color:#333;">
+                Mentor: <b>Dr. Manish Sarkhel</b>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html=True)
+
+
 ##############################################
 # LOAD DATA
 ##############################################
