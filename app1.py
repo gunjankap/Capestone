@@ -342,6 +342,7 @@ for ui, (k, v) in zip(cols, rmse_tables.items()):
         st.markdown(f"**Subgroup RMSE — {k}**")
         st.dataframe(v, height=180)
 
+
 st.markdown("""
 <div style="font-size:13px; padding:12px;
             background:#f4f6fc;
@@ -512,3 +513,5 @@ st.markdown("""
 ✨ Analysis Completed Successfully — Results Ready!
 </div>
 """, unsafe_allow_html=True)
+
+
