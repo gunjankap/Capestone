@@ -201,8 +201,16 @@ if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
 
 # AQI
 else:
-    blind_df["TEMP_BIN"] = pd.qcut(blind_df["T"], 4, duplicates="drop")
-    blind_df["HUM_BIN"] = pd.qcut(blind_df["RH"], 4, duplicates="drop")
+    blind_df["TEMP_BIN"] = pd.qcut(
+    blind_df["T"], 4,
+    labels=["Cold","Mild","Warm","Hot"]
+)
+
+blind_df["HUM_BIN"] = pd.qcut(
+    blind_df["RH"], 4,
+    labels=["Dry","Normal","Humid","Very Humid"]
+)
+
 
     for col in ["TEMP_BIN","HUM_BIN"]:
         rmse_tables[col] = (
