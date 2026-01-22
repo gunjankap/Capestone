@@ -11,7 +11,6 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -19,33 +18,19 @@ from sklearn.ensemble import RandomForestRegressor
 st.set_page_config(page_title="AI Model Evaluation Dashboard",
                    page_icon="📊", layout="wide")
 
-# ---------- STUDENT & PROJECT HEADER ----------
+# ---------- STUDENT HEADER ----------
 col1, col2 = st.columns([1, 6])
-
 with col1:
     st.image("college_logo.jpg", width=90)
-
 with col2:
-    st.markdown(
-        """
-        <div style="line-height:1.6; text-align:right;">
-            <div style="font-size:16px; font-weight:700; color:#0b2e73;">
-                Gunjan Kapoor
-            </div>
-            <div style="font-size:13px; color:#333;">
-                Roll No: <b>EMBADTA24003</b>
-            </div>
-            <div style="font-size:13px; color:#333;">
-                Mentor: <b>Dr. Manish Sarkhel</b>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html=True)
-
-
+    st.markdown("""
+    <div style="line-height:1.6; text-align:right;">
+        <div style="font-size:16px; font-weight:700; color:#0b2e73;">Gunjan Kapoor</div>
+        <div style="font-size:13px;">Roll No: <b>EMBADTA24003</b></div>
+        <div style="font-size:13px;">Mentor: <b>Dr. Manish Sarkhel</b></div>
+    </div>
+    """, unsafe_allow_html=True)
+st.markdown("<hr>", unsafe_allow_html=True)
 
 ##############################################
 # LOAD DATA
@@ -54,36 +39,31 @@ st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html
 def load_bike():
     day = pd.read_csv("day.csv")
     hour = pd.read_csv("hour.csv")
-
     drop_cols = ["instant","dteday","casual","registered"]
-    day = day.drop(columns=[c for c in drop_cols if c in day.columns])
-    hour = hour.drop(columns=[c for c in drop_cols if c in hour.columns])
-    return day, hour
+    return (
+        day.drop(columns=[c for c in drop_cols if c in day.columns]),
+        hour.drop(columns=[c for c in drop_cols if c in hour.columns])
+    )
 
 @st.cache_data
 def load_aqi():
     df = pd.read_csv("aqi.csv")
-    # clean column names
     df.columns = df.columns.str.strip()
-    # drop non-numeric for ML
-    keep = df.select_dtypes(include=np.number)
-    return df, keep
+    return df.select_dtypes(include=np.number)
 
 day, hour = load_bike()
-aqi_raw, aqi = load_aqi()
+aqi = load_aqi()
 
 ##############################################
-# Sidebar
+# SIDEBAR
 ##############################################
 st.sidebar.title("📊 AI Model Analysis")
-
 dataset_choice = st.sidebar.selectbox(
     "Choose Dataset",
     ["Bike Dataset - Day", "Bike Dataset - Hour", "AQI"]
 )
-
 model_choice = st.sidebar.selectbox(
-    "Choose Model", 
+    "Choose Model",
     ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"]
 )
 
@@ -91,420 +71,150 @@ model_choice = st.sidebar.selectbox(
 # DATASET HANDLING
 ##############################################
 if dataset_choice == "Bike Dataset - Day":
-    df = day.copy()
-    target = "cnt"
-
+    df, target = day.copy(), "cnt"
 elif dataset_choice == "Bike Dataset - Hour":
-    df = hour.copy()
-    target = "cnt"
-
+    df, target = hour.copy(), "cnt"
 else:
-    st.sidebar.markdown("### AQI Target Selection")
-    target = st.sidebar.selectbox(
-        "Select Prediction Target",
-        [c for c in aqi.columns if c not in ["Date","Time"]]
-    )
+    target = st.sidebar.selectbox("AQI Target", aqi.columns)
     df = aqi.copy()
 
 ##############################################
-# Split & Scale
+# TRAIN / TEST
 ##############################################
 X = df.drop(columns=[target])
 y = df[target]
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.25, random_state=42)
-
-scaler = StandardScaler()
-X_train_s = scaler.fit_transform(X_train)
-X_test_s = scaler.transform(X_test)
+    X, y, test_size=0.25, random_state=42
+)
 
 ##############################################
-# Train Models
+# MODEL
 ##############################################
 def build_model(name):
     if name == "Linear Regression":
-        model = LinearRegression()
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
-
+        m = LinearRegression()
     elif name == "Decision Tree":
-        model = DecisionTreeRegressor(max_depth=8)
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
-
+        m = DecisionTreeRegressor(max_depth=8)
     else:
-        model = RandomForestRegressor(n_estimators=220, random_state=42)
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
-
-    return model, preds
+        m = RandomForestRegressor(n_estimators=200, random_state=42)
+    m.fit(X_train, y_train)
+    return m, m.predict(X_test)
 
 model, preds = build_model(model_choice)
 
 ##############################################
-# UI Layout
+# METRICS
 ##############################################
-st.markdown(
-    """
-    <h1 style="
-        text-align:center; 
-        color:#0a2a66; 
-        font-style:italic;
-        font-weight:800;
-    ">
-        ✨🤖 AI Model Evaluation Dashboard 🚀
-    </h1>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    f"""
-    <div style="font-size:18px; font-weight:600; padding:8px; 
-                border-radius:8px; background:#f7f9fc;">
-        Dataset: <span style="color:#2e7fe8">{dataset_choice}</span> |
-        Model: <span style="color:#2e7fe8">{model_choice}</span> |
-        Target: <span style="color:#2e7fe8">{target}</span>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(f"""
-<div style="font-size:12px; padding:8px; background:#ffffff;
-            border:1px dashed #d6e1ff;">
-<b>Data Snapshot</b><br>
-• Records: {df.shape[0]}<br>
-• Features: {X.shape[1]}<br>
-• Missing Values: {df.isna().sum().sum()}<br>
-• Target Range: {round(y.min(),1)} – {round(y.max(),1)}
-</div>
-""", unsafe_allow_html=True)
-
-
-##############################################
-# Metrics
-##############################################
-
 mae = round(mean_absolute_error(y_test, preds),2)
-rmse = round(np.sqrt(mean_squared_error(y_test, preds)),2)
+rmse = round(mean_squared_error(y_test, preds, squared=False),2)
 r2 = round(r2_score(y_test, preds),3)
 
 c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>MAE</h5>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{mae}</p>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>RMSE</h5>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{rmse}</p>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown(f"<h5 style='text-align:center; color:#5a6bbf;'>R2 Score</h5>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align:center; font-size:20px; color:#0b2e73; font-weight:700;'>{r2}</p>", unsafe_allow_html=True)
-
-
+for c, name, val in zip([c1,c2,c3], ["MAE","RMSE","R2"], [mae,rmse,r2]):
+    with c:
+        st.markdown(f"<h5 style='text-align:center'>{name}</h5>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center;font-size:20px'><b>{val}</b></p>", unsafe_allow_html=True)
 
 ##############################################
-# Actual vs Pred Plot
+# PERFORMANCE PLOTS
 ##############################################
-st.markdown(
-    """
-    <h4 style='text-align:center; color:#0b2e73;'>
-        📊 Model Performance Diagnostics
-    </h4>
-    """,
-    unsafe_allow_html=True
-)
-
+st.markdown("### 📊 Model Performance Diagnostics")
 c1, c2, c3 = st.columns(3)
 
-# -------- VISUAL 1: Actual vs Predicted --------
 with c1:
-    fig, ax = plt.subplots(figsize=(3.5,3.5))
-    sns.scatterplot(x=y_test, y=preds, s=12, color="#2e7fe8", ax=ax)
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 
-            '--', color='gray', linewidth=1)
-    ax.set_title("Actual vs Predicted", fontsize=10)
-    ax.set_xlabel("Actual", fontsize=8)
-    ax.set_ylabel("Predicted", fontsize=8)
+    fig, ax = plt.subplots(figsize=(3,3))
+    sns.scatterplot(x=y_test, y=preds, s=10, ax=ax)
+    ax.set_title("Actual vs Pred")
     st.pyplot(fig)
 
-# -------- VISUAL 2: Residual Plot --------
 with c2:
-    residuals = y_test - preds
-    fig, ax = plt.subplots(figsize=(3.5,3.5))
-    sns.scatterplot(x=preds, y=residuals, s=12, color="#e86f2e", ax=ax)
-    ax.axhline(0, color='gray', linestyle='--', linewidth=1)
-    ax.set_title("Residual Plot", fontsize=10)
-    ax.set_xlabel("Predicted", fontsize=8)
-    ax.set_ylabel("Residuals", fontsize=8)
+    res = y_test - preds
+    fig, ax = plt.subplots(figsize=(3,3))
+    sns.scatterplot(x=preds, y=res, s=10, ax=ax)
+    ax.axhline(0)
+    ax.set_title("Residuals")
     st.pyplot(fig)
 
-# -------- VISUAL 3: Error Distribution --------
 with c3:
-    fig, ax = plt.subplots(figsize=(3.5,3.5))
-    sns.histplot(residuals, kde=True, color="#4c9c4c", ax=ax)
-    ax.set_title("Prediction Error Distribution", fontsize=10)
-    ax.set_xlabel("Error", fontsize=8)
-    ax.set_ylabel("Count", fontsize=8)
+    fig, ax = plt.subplots(figsize=(3,3))
+    sns.histplot(res, kde=True, ax=ax)
+    ax.set_title("Error Distribution")
     st.pyplot(fig)
 
-pred_std = np.std(preds)
-
-st.markdown(f"""
-<div style="font-size:12px; padding:8px; background:#fff7f0;
-            border-left:4px solid #ff9f40;">
-<b>Prediction Stability Indicator</b><br>
-• Std Dev of Predictions: {round(pred_std,2)}<br>
-• Interpretation: Higher values indicate inconsistent model behavior across samples.
-</div>
-""", unsafe_allow_html=True)
-
-# ================= FEATURE IMPORTANCE =================
+##############################################
+# FEATURE IMPORTANCE (SAFE)
+##############################################
 if model_choice == "Random Forest (Ensemble)":
-
-    feat_imp = (
-        pd.Series(model.feature_importances_, index=X.columns)
-        .sort_values(ascending=False)
-    )
-
-    # ---- Top 5 Features ----
-    top_feat = feat_imp.head(5)
-
-    fig, ax = plt.subplots(figsize=(3.0, 2.2))  # compact figure
-
-    sns.barplot(
-        x=top_feat.values,
-        y=top_feat.index,
-        color="#2e7fe8",
-        ax=ax
-    )
-
-    ax.set_title("Top 5 Feature Importance", fontsize=9, color="#0b2e73")
-    ax.set_xlabel("Importance", fontsize=8)
-    ax.set_ylabel("")
-
-    ax.tick_params(axis='x', labelsize=7)
-    ax.tick_params(axis='y', labelsize=7)
-
-    plt.tight_layout(pad=0.5)
+    fi = pd.Series(model.feature_importances_, index=X.columns).nlargest(5)
+    fig, ax = plt.subplots(figsize=(3,2))
+    sns.barplot(x=fi.values, y=fi.index, ax=ax)
+    ax.set_title("Top 5 Feature Importance")
     st.pyplot(fig)
 
-
 ##############################################
-# BLIND SPOT ANALYSIS
+# BLIND SPOT ANALYSIS (FIXED)
 ##############################################
-st.markdown(
-    """
-    <h5 style='color:#0b2e73;'>
-        ⚠️ Blind Spot / Subgroup Error Analysis
-    </h5>
-    """,
-    unsafe_allow_html=True
-)
-
+st.markdown("### ⚠️ Blind Spot / Subgroup Error Analysis")
 
 blind_df = X_test.copy()
 blind_df["actual"] = y_test
 blind_df["pred"] = preds
 
-# Bike Grouping
-if dataset_choice in ["Day","Hour"]:
-    group_cols = ["season","weathersit","workingday"]
-    available = [g for g in group_cols if g in df.columns]
-
-# AQI Grouping
+if dataset_choice.startswith("Bike"):
+    available = [c for c in ["season","weathersit","workingday"] if c in df.columns]
 else:
     blind_df["TEMP_BIN"] = pd.qcut(blind_df.iloc[:,0], 4, duplicates="drop")
     blind_df["HUM_BIN"] = pd.qcut(blind_df.iloc[:,1], 4, duplicates="drop")
     available = ["TEMP_BIN","HUM_BIN"]
 
-# -------- Create Tables --------
-season_rmse = blind_df.groupby("season").apply(
-    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
-).reset_index(name="RMSE")
+rmse_tables = {}
+for g in available:
+    rmse_tables[g] = (
+        blind_df.groupby(g)
+        .apply(lambda x: mean_squared_error(x["actual"], x["pred"], squared=False))
+        .reset_index(name="RMSE")
+    )
 
-weather_rmse = blind_df.groupby("weathersit").apply(
-    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
-).reset_index(name="RMSE")
-
-working_rmse = blind_df.groupby("workingday").apply(
-    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
-).reset_index(name="RMSE")
-
-st.markdown("""
-<div style="font-size:13px; padding:12px;
-            background:#f4f6fc;
-            border-radius:8px;">
-<b>Key Observations</b><br>
-• High overall accuracy masks subgroup-specific failures.<br>
-• Certain conditions consistently exhibit elevated error rates.<br>
-• Ensemble agreement does not guarantee correctness.<br>
-• Blind spots persist across multiple model families.
-</div>
-""", unsafe_allow_html=True)
-
-# -------- SMALL TABLE CSS --------
-st.markdown("""
-<style>
-.small-table table {
-    font-size:11px !important;
-}
-.small-table th {
-    font-size:11px !important;
-    color:#0b2e73;
-}
-.small-title{
-    font-size:12px;
-    color:#0b2e73;
-    font-weight:600;
-    margin-bottom:4px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-# -------- 3 TABLES SIDE BY SIDE --------
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — season</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(season_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — weathersit</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(weather_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — workingday</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(working_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
+cols = st.columns(len(available))
+for col, g in zip(cols, available):
+    with col:
+        st.markdown(f"**Subgroup RMSE — {g}**")
+        st.dataframe(rmse_tables[g], height=180)
 
 ##############################################
-# CMBS CHECK
+# CMBS (FIXED)
 ##############################################
-st.markdown(
-    """
-    <h5 style='color:#0b2e73;'>
-        🧠 CMBS — Collective Model Blind Spot Check
-    </h5>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("### 🧠 CMBS — Collective Model Blind Spot Check")
+
+blind_df["lr"] = LinearRegression().fit(X_train,y_train).predict(X_test)
+blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train,y_train).predict(X_test)
+blind_df["rf"] = RandomForestRegressor(n_estimators=200).fit(X_train,y_train).predict(X_test)
+
+def cmbs(df, g):
+    base = mean_squared_error(df["actual"], df["rf"], squared=False)
+    out = []
+    for v in df[g].unique():
+        sub = df[df[g]==v]
+        out.append([
+            v,
+            mean_squared_error(sub["actual"], sub["lr"], squared=False),
+            mean_squared_error(sub["actual"], sub["tree"], squared=False),
+            mean_squared_error(sub["actual"], sub["rf"], squared=False),
+        ])
+    return pd.DataFrame(out, columns=[g,"lr","tree","rf"])
+
+cols = st.columns(len(available))
+for col, g in zip(cols, available):
+    with col:
+        st.markdown(f"**CMBS — {g}**")
+        st.dataframe(cmbs(blind_df, g), height=200)
+
+##############################################
+# FOOTER
+##############################################
 st.markdown("""
-<div style="font-size:13px; padding:12px;
-            background:#fff;
-            border:1px solid #e0e6ff;
-            border-left:4px solid #d9534f;">
-<b>CMBS Interpretation</b><br>
-A subgroup is flagged as a Collective Model Blind Spot when multiple
-independent models simultaneously exhibit elevated error rates,
-indicating a structural data or representation issue rather than
-a model-specific weakness.
-</div>
-""", unsafe_allow_html=True)
-blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
-blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
-blind_df["rf"] = RandomForestRegressor(n_estimators=200).fit(X_train, y_train).predict(X_test)
-
-def cmbs_check(df, group_col, preds=["lr","tree","rf"], threshold=0.25):
-    results = {}
-    base = np.sqrt(mean_squared_error(df["actual"], df["rf"])) 
-
-    for g in df[group_col].unique():
-        sub = df[df[group_col]==g]
-        res = {}
-        for p in preds:
-            res[p] = round(np.sqrt(mean_squared_error(sub["actual"], sub[p])),2)
-
-        res["Collective_BlindSpot"] = all(
-            np.sqrt(mean_squared_error(sub["actual"], sub[p])) > base*(1+threshold)
-            for p in preds
-        )
-        results[g] = res
-    return pd.DataFrame(results).T
-
-# ---------- CREATE CMBS TABLES ----------
-season_cmbs = cmbs_check(blind_df, "season").reset_index().rename(columns={"index":"season"})
-weather_cmbs = cmbs_check(blind_df, "weathersit").reset_index().rename(columns={"index":"weathersit"})
-working_cmbs = cmbs_check(blind_df, "workingday").reset_index().rename(columns={"index":"workingday"})
-
-
-# ---------- SMALL TABLE CSS ----------
-st.markdown("""
-<style>
-.small-table-cmbs table {
-    font-size:11px !important;
-}
-.small-table-cmbs th {
-    font-size:11px !important;
-    color:#0b2e73;
-}
-.cmbs-title{
-    font-size:14px;
-    color:#0b2e73;
-    font-weight:700;
-    text-align:center;
-    margin-bottom:4px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-# ---------- 3 TABLES SIDE BY SIDE ----------
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.markdown("<div class='cmbs-title'>CMBS Results — season</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(season_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown("<div class='cmbs-title'>CMBS Results — weathersit</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(weather_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown("<div class='cmbs-title'>CMBS Results — workingday</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(working_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-st.markdown("""
-<div style="
-    background:linear-gradient(135deg, #e8f0ff, #ffffff);
-    padding:12px 18px;
-    border-radius:10px;
-    border:1px solid #d6e1ff;
-    text-align:center;
-    font-size:15px;
-    color:#0b2e73;
-    font-weight:700;">
+<div style="padding:12px;text-align:center;font-weight:700;color:#0b2e73;">
 ✨ Analysis Completed Successfully — Results Ready!
 </div>
 """, unsafe_allow_html=True)
-
-
-
