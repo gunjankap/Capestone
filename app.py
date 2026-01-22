@@ -28,7 +28,7 @@ with col1:
 with col2:
     st.markdown(
         """
-        <div style="line-height:1.6;">
+        <div style="line-height:1.6; text-align:right;">
             <div style="font-size:16px; font-weight:700; color:#0b2e73;">
                 Gunjan Kapoor
             </div>
@@ -44,6 +44,7 @@ with col2:
     )
 
 st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html=True)
+
 
 
 ##############################################
