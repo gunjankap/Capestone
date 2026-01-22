@@ -323,55 +323,17 @@ else:
     available = ["TEMP_BIN","HUM_BIN"]
 
 # -------- Create Tables --------
-##############################################
-# SAFE BLIND SPOT / SUBGROUP ERROR ANALYSIS
-##############################################
+season_rmse = blind_df.groupby("season").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
 
-rmse_tables = {}
+weather_rmse = blind_df.groupby("weathersit").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
 
-# Bike datasets
-if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
-    group_cols = ["season", "weathersit", "workingday"]
-    group_cols = [g for g in group_cols if g in blind_df.columns]
-
-# AQI dataset
-else:
-    # Clean sensor error values
-    blind_df = blind_df.replace(-200, np.nan)
-
-    # Meaningful AQI subgroups
-    blind_df["TEMP_BIN"] = pd.qcut(
-        blind_df["T"], 4, labels=["Low", "Mid-Low", "Mid-High", "High"]
-    )
-    blind_df["HUM_BIN"] = pd.qcut(
-        blind_df["RH"], 4, labels=["Dry", "Normal", "Humid", "Very Humid"]
-    )
-
-    group_cols = ["TEMP_BIN", "HUM_BIN"]
-
-# Compute RMSE safely
-for g in group_cols:
-    rmse_tables[g] = (
-        blind_df
-        .groupby(g, include_groups=False)
-        .apply(lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"])))
-        .reset_index(name="RMSE")
-    )
-if rmse_tables:
-    cols = st.columns(len(rmse_tables))
-
-    for col, (g, tbl) in zip(cols, rmse_tables.items()):
-        with col:
-            st.markdown(
-                f"<div style='text-align:center; font-size:14px; "
-                f"font-weight:700; color:#0b2e73;'>"
-                f"Subgroup RMSE — {g}</div>",
-                unsafe_allow_html=True
-            )
-            st.dataframe(tbl, height=180, width="stretch")
-else:
-    st.info("No subgroup variables available for blind spot analysis.")
-
+working_rmse = blind_df.groupby("workingday").apply(
+    lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"]))
+).reset_index(name="RMSE")
 
 st.markdown("""
 <div style="font-size:13px; padding:12px;
