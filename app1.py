@@ -212,7 +212,7 @@ blind_df["HUM_BIN"] = pd.qcut(
 )
 
 
-    for col in ["TEMP_BIN","HUM_BIN"]:
+for col in ["TEMP_BIN","HUM_BIN"]:
         rmse_tables[col] = (
             blind_df.groupby(col)
             .apply(lambda x: np.sqrt(mean_squared_error(x["actual"], x["pred"])))
