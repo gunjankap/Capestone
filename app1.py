@@ -16,8 +16,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-st.set_page_config(page_title="AI Model Evaluation Dashboard",
-                   page_icon="📊", layout="wide")
+
 
 # ---------- STUDENT & PROJECT HEADER ----------
 col1, col2 = st.columns([1, 6])
@@ -45,6 +44,9 @@ with col2:
 
 st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html=True)
 
+
+ # ---------- BANNER IMAGE ----------
+st.image("banner.png", use_container_width=True)
 
 
 ##############################################
