@@ -498,6 +498,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 st.markdown("""
 <div style="font-size:13px; padding:12px;
             background:#fff;
@@ -510,32 +511,78 @@ indicating a structural data or representation issue rather than
 a model-specific weakness.
 </div>
 """, unsafe_allow_html=True)
+
+
+# ==========================================
+# CREATE MULTI-MODEL PREDICTIONS
+# ==========================================
 blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
 blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
-blind_df["rf"] = RandomForestRegressor(n_estimators=200).fit(X_train, y_train).predict(X_test)
+blind_df["rf"] = RandomForestRegressor(n_estimators=200, random_state=42)\
+                    .fit(X_train, y_train).predict(X_test)
 
-def cmbs_check(df, group_col, preds=["lr","tree","rf"], threshold=0.25):
+
+# ==========================================
+# CMBS FUNCTION
+# ==========================================
+def cmbs_check(df, group_col, preds=["lr", "tree", "rf"], threshold=0.25):
+
     results = {}
-    base = np.sqrt(mean_squared_error(df["actual"], df["rf"])) 
 
-    for g in df[group_col].unique():
-        sub = df[df[group_col]==g]
+    # ---- Base RMSE reference ----
+    base = np.sqrt(mean_squared_error(df["actual"], df["rf"]))
+
+    # ---- Loop through subgroups ----
+    for g in df[group_col].dropna().unique():
+
+        sub = df[df[group_col] == g]
+
+        # Skip very small subgroups
+        if len(sub) < 5:
+            continue
+
         res = {}
-        for p in preds:
-            res[p] = round(np.sqrt(mean_squared_error(sub["actual"], sub[p])),2)
 
+        # RMSE for each model
+        for p in preds:
+            res[p] = round(
+                np.sqrt(mean_squared_error(sub["actual"], sub[p])), 2
+            )
+
+        # Collective Blind Spot condition
         res["Collective_BlindSpot"] = all(
-            np.sqrt(mean_squared_error(sub["actual"], sub[p])) > base*(1+threshold)
+            np.sqrt(mean_squared_error(sub["actual"], sub[p])) > base * (1 + threshold)
             for p in preds
         )
+
         results[g] = res
+
     return pd.DataFrame(results).T
 
-# ---------- CREATE CMBS TABLES ----------
-season_cmbs = cmbs_check(blind_df, "season").reset_index().rename(columns={"index":"season"})
-weather_cmbs = cmbs_check(blind_df, "weathersit").reset_index().rename(columns={"index":"weathersit"})
-working_cmbs = cmbs_check(blind_df, "workingday").reset_index().rename(columns={"index":"workingday"})
 
+# ==========================================
+# CREATE CMBS TABLES BASED ON DATASET
+# ==========================================
+
+if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
+
+    season_cmbs = cmbs_check(blind_df, "season")\
+        .reset_index().rename(columns={"index": "season"})
+
+    weather_cmbs = cmbs_check(blind_df, "weathersit")\
+        .reset_index().rename(columns={"index": "weathersit"})
+
+    working_cmbs = cmbs_check(blind_df, "workingday")\
+        .reset_index().rename(columns={"index": "workingday"})
+
+
+else:
+    # AQI CMBS tables using bins
+    temp_cmbs = cmbs_check(blind_df, "TEMP_BIN")\
+        .reset_index().rename(columns={"index": "TEMP_BIN"})
+
+    hum_cmbs = cmbs_check(blind_df, "HUM_BIN")\
+        .reset_index().rename(columns={"index": "HUM_BIN"})
 
 # ---------- SMALL TABLE CSS ----------
 st.markdown("""
@@ -556,6 +603,40 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+# ==========================================
+# DISPLAY CMBS TABLES
+# ==========================================
+st.markdown("### ✅ CMBS Subgroup Results")
+
+if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.markdown("**Season CMBS**")
+        st.dataframe(season_cmbs, use_container_width=True)
+
+    with c2:
+        st.markdown("**Weather CMBS**")
+        st.dataframe(weather_cmbs, use_container_width=True)
+
+    with c3:
+        st.markdown("**Working Day CMBS**")
+        st.dataframe(working_cmbs, use_container_width=True)
+
+
+else:
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        st.markdown("**Temperature Bin CMBS**")
+        st.dataframe(temp_cmbs, use_container_width=True)
+
+    with c2:
+        st.markdown("**Humidity Bin CMBS**")
+        st.dataframe(hum_cmbs, use_container_width=True)
 
 
 # ---------- 3 TABLES SIDE BY SIDE ----------
