@@ -46,7 +46,7 @@ st.markdown("<hr style='margin-top:8px; margin-bottom:8px;'>", unsafe_allow_html
 
 
  # ---------- BANNER IMAGE ----------
-st.image("banner.png", use_container_width=True)
+st.image("banner1.png", use_container_width=True)
 
 
 ##############################################
