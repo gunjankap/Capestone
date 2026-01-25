@@ -144,6 +144,25 @@ def build_model(name):
 
 model, preds = build_model(model_choice)
 
+
+##############################################
+# UI Layout
+##############################################
+st.markdown(
+    """
+    <h1 style="
+        text-align:center; 
+        color:#0a2a66; 
+        font-style:italic;
+        font-weight:800;
+    ">
+        ✨🤖 AI Model Evaluation Dashboard 🚀
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+
+
 st.markdown(
     f"""
     <div style="font-size:18px; font-weight:600; padding:8px; 
