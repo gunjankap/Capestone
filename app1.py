@@ -455,41 +455,13 @@ else:
         st.markdown("**Humidity Bin RMSE**")
         st.dataframe(hum_rmse, use_container_width=True)
 
-# -------- 3 TABLES SIDE BY SIDE --------
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — season</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(season_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — weathersit</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(weather_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown(
-    "<div style='text-align:center; font-size:14px; color:#0b2e73; font-weight:700;'>Subgroup RMSE — workingday</div>",
-    unsafe_allow_html=True
-)
-    st.markdown('<div class="small-table">', unsafe_allow_html=True)
-    st.dataframe(working_rmse, use_container_width=True, height=180)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 
 ##############################################
-# CMBS CHECK
+# CMBS CHECK — Collective Model Blind Spot
 ##############################################
+
 st.markdown(
     """
     <h5 style='color:#0b2e73;'>
@@ -514,12 +486,13 @@ a model-specific weakness.
 
 
 # ==========================================
-# CREATE MULTI-MODEL PREDICTIONS
+# MULTI-MODEL PREDICTIONS
 # ==========================================
 blind_df["lr"] = LinearRegression().fit(X_train, y_train).predict(X_test)
 blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).predict(X_test)
-blind_df["rf"] = RandomForestRegressor(n_estimators=200, random_state=42)\
-                    .fit(X_train, y_train).predict(X_test)
+blind_df["rf"] = RandomForestRegressor(
+    n_estimators=200, random_state=42
+).fit(X_train, y_train).predict(X_test)
 
 
 # ==========================================
@@ -529,15 +502,15 @@ def cmbs_check(df, group_col, preds=["lr", "tree", "rf"], threshold=0.25):
 
     results = {}
 
-    # ---- Base RMSE reference ----
+    # Base RMSE reference (overall RF performance)
     base = np.sqrt(mean_squared_error(df["actual"], df["rf"]))
 
-    # ---- Loop through subgroups ----
+    # Loop through subgroup values
     for g in df[group_col].dropna().unique():
 
         sub = df[df[group_col] == g]
 
-        # Skip very small subgroups
+        # Skip tiny subgroups
         if len(sub) < 5:
             continue
 
@@ -549,7 +522,7 @@ def cmbs_check(df, group_col, preds=["lr", "tree", "rf"], threshold=0.25):
                 np.sqrt(mean_squared_error(sub["actual"], sub[p])), 2
             )
 
-        # Collective Blind Spot condition
+        # Collective Blind Spot Condition
         res["Collective_BlindSpot"] = all(
             np.sqrt(mean_squared_error(sub["actual"], sub[p])) > base * (1 + threshold)
             for p in preds
@@ -577,36 +550,20 @@ if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
 
 
 else:
-    # AQI CMBS tables using bins
+    # AQI grouping bins already exist from Blind Spot section:
+    # TEMP_BIN and HUM_BIN
+
     temp_cmbs = cmbs_check(blind_df, "TEMP_BIN")\
         .reset_index().rename(columns={"index": "TEMP_BIN"})
 
     hum_cmbs = cmbs_check(blind_df, "HUM_BIN")\
         .reset_index().rename(columns={"index": "HUM_BIN"})
 
-# ---------- SMALL TABLE CSS ----------
-st.markdown("""
-<style>
-.small-table-cmbs table {
-    font-size:11px !important;
-}
-.small-table-cmbs th {
-    font-size:11px !important;
-    color:#0b2e73;
-7D
-.cmbs-title{
-    font-size:14px;
-    color:#0b2e73;
-    font-weight:700;
-    text-align:center;
-    margin-bottom:4px;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # ==========================================
-# DISPLAY CMBS TABLES
+# DISPLAY TABLES (SAFE)
 # ==========================================
+
 st.markdown("### ✅ CMBS Subgroup Results")
 
 if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
@@ -625,7 +582,6 @@ if dataset_choice in ["Bike Dataset - Day", "Bike Dataset - Hour"]:
         st.markdown("**Working Day CMBS**")
         st.dataframe(working_cmbs, use_container_width=True)
 
-
 else:
 
     c1, c2 = st.columns(2)
@@ -637,40 +593,6 @@ else:
     with c2:
         st.markdown("**Humidity Bin CMBS**")
         st.dataframe(hum_cmbs, use_container_width=True)
-
-
-# ---------- 3 TABLES SIDE BY SIDE ----------
-c1, c2, c3 = st.columns(3)
-
-with c1:
-    st.markdown("<div class='cmbs-title'>CMBS Results — season</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(season_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown("<div class='cmbs-title'>CMBS Results — weathersit</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(weather_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown("<div class='cmbs-title'>CMBS Results — workingday</div>", unsafe_allow_html=True)
-    st.markdown('<div class="small-table-cmbs">', unsafe_allow_html=True)
-    st.dataframe(working_cmbs, use_container_width=True, height=200)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-st.markdown("""
-<div style="
-    background:linear-gradient(135deg, #e8f0ff, #ffffff);
-    padding:12px 18px;
-    border-radius:10px;
-    border:1px solid #d6e1ff;
-    text-align:center;
-    font-size:15px;
-    color:#0b2e73;
-    font-weight:700;">
 ✨ Analysis Completed Successfully — Results Ready!
 </div>
 """, unsafe_allow_html=True)
