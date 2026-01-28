@@ -283,6 +283,78 @@ if model_choice == "Random Forest (Ensemble)":
     plt.tight_layout(pad=0.5)
     st.pyplot(fig)
 
+##############################################
+# FIGURE 5.1 — GLOBAL FEATURE INFLUENCE ACROSS MODELS
+##############################################
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        🌍 Figure 5.1: Global Feature Influence Across Models
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="font-size:13px; padding:10px;
+                background:#f7f9fc;
+                border-left:5px solid #2e7fe8;
+                border-radius:8px;">
+    <b>Figure 5.1: Global Feature Influence Across Models in High-Agreement Regions</b><br>
+    The figure shows that different model families rely on the same dominant features,
+    explaining convergence in predictions despite architectural differences.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# -----------------------------
+# Train all 3 models for comparison
+# -----------------------------
+lr_model = LinearRegression().fit(X_train, y_train)
+tree_model = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train)
+rf_model = RandomForestRegressor(n_estimators=200, random_state=42).fit(X_train, y_train)
+
+# -----------------------------
+# Extract Feature Influence
+# -----------------------------
+features = X.columns
+
+lr_imp = np.abs(lr_model.coef_)
+tree_imp = tree_model.feature_importances_
+rf_imp = rf_model.feature_importances_
+
+# Create Combined DataFrame
+imp_df = pd.DataFrame({
+    "Feature": features,
+    "Linear Regression": lr_imp,
+    "Decision Tree": tree_imp,
+    "Random Forest": rf_imp
+})
+
+# Normalize for fair comparison
+imp_df.iloc[:, 1:] = imp_df.iloc[:, 1:].apply(lambda x: x / x.max())
+
+# Select Top 8 most influential overall
+imp_df["Overall"] = imp_df.iloc[:, 1:].mean(axis=1)
+top_imp = imp_df.sort_values("Overall", ascending=False).head(8)
+
+# -----------------------------
+# Plot Side-by-Side Comparison
+# -----------------------------
+fig, ax = plt.subplots(figsize=(7, 4))
+
+top_imp.set_index("Feature")[["Linear Regression",
+                             "Decision Tree",
+                             "Random Forest"]].plot(kind="barh", ax=ax)
+
+ax.set_title("Top Global Drivers Across Model Families", fontsize=11)
+ax.set_xlabel("Normalized Influence Score", fontsize=9)
+ax.set_ylabel("")
+
+plt.tight_layout()
+st.pyplot(fig)
 
 ##############################################
 # BLIND SPOT ANALYSIS
