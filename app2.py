@@ -1108,6 +1108,122 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+##############################################
+# FIGURE 4.5 — OVERLAPPING FAILURE REGIONS ACROSS MODELS
+##############################################
+
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        Figure 4.5: Illustration of Overlapping Failure Regions Across Models
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="font-size:13px; padding:10px;
+                background:#fff;
+                border-left:5px solid #6f42c1;
+                border-radius:8px;">
+    This figure identifies instances where multiple independent models 
+    simultaneously produce high prediction error. These overlapping failure 
+    regions represent early evidence of collective blind spots rather than 
+    isolated model weakness.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Step 1: Train Models and Collect Prediction Errors
+# ----------------------------------------------------
+from sklearn.neural_network import MLPRegressor
+
+mdl_lr = LinearRegression().fit(X_train, y_train)
+mdl_tree = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train)
+mdl_rf = RandomForestRegressor(n_estimators=200, random_state=42).fit(X_train, y_train)
+mdl_nn = MLPRegressor(hidden_layer_sizes=(64,32),
+                     max_iter=800,
+                     random_state=42).fit(X_train, y_train)
+
+pred_lr = mdl_lr.predict(X_test)
+pred_tree = mdl_tree.predict(X_test)
+pred_rf = mdl_rf.predict(X_test)
+pred_nn = mdl_nn.predict(X_test)
+
+# Compute absolute errors
+err_df = pd.DataFrame({
+    "Actual": y_test.values,
+    "LR_Error": np.abs(y_test.values - pred_lr),
+    "Tree_Error": np.abs(y_test.values - pred_tree),
+    "RF_Error": np.abs(y_test.values - pred_rf),
+    "NN_Error": np.abs(y_test.values - pred_nn)
+})
+
+# ----------------------------------------------------
+# Step 2: Define High-Error Threshold (Top 15%)
+# ----------------------------------------------------
+threshold = err_df[["LR_Error","Tree_Error","RF_Error","NN_Error"]].quantile(0.85)
+
+# Flag collective failures (ALL models high-error)
+err_df["Collective_Failure"] = (
+    (err_df["LR_Error"] > threshold["LR_Error"]) &
+    (err_df["Tree_Error"] > threshold["Tree_Error"]) &
+    (err_df["RF_Error"] > threshold["RF_Error"]) &
+    (err_df["NN_Error"] > threshold["NN_Error"])
+)
+
+# Count overlap points
+n_overlap = err_df["Collective_Failure"].sum()
+
+st.markdown(
+    f"""
+    ✅ Overlapping failure points detected: <b>{n_overlap}</b> instances<br>
+    These represent candidate collective blind spot regions.
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Step 3: Visualization (Actual vs Error Region)
+# ----------------------------------------------------
+fig, ax = plt.subplots(figsize=(7,4))
+
+# Plot normal points
+ax.scatter(
+    range(len(err_df)),
+    err_df["Actual"],
+    label="Normal Predictions",
+    alpha=0.4
+)
+
+# Highlight overlapping failure points
+ax.scatter(
+    err_df[err_df["Collective_Failure"]].index,
+    err_df[err_df["Collective_Failure"]]["Actual"],
+    label="Overlapping Failure Region",
+    marker="X",
+    s=80
+)
+
+ax.set_title("Instances Where All Models Fail Together", fontsize=11)
+ax.set_xlabel("Test Instance Index")
+ax.set_ylabel("Actual Target Value")
+
+ax.legend()
+ax.grid(True, linestyle="--", alpha=0.3)
+
+st.pyplot(fig)
+
+# ----------------------------------------------------
+# Caption
+# ----------------------------------------------------
+st.caption(
+    "Figure 4.5: Overlapping failure regions across models. Highlighted instances "
+    "indicate structurally difficult zones where all model families exhibit elevated error."
+)
 
 
 ##############################################
