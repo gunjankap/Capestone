@@ -15,6 +15,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
 
 
 
@@ -85,9 +86,10 @@ dataset_choice = st.sidebar.selectbox(
 )
 
 model_choice = st.sidebar.selectbox(
-    "Choose Model", 
-    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)"]
+    "Choose Model",
+    ["Linear Regression", "Decision Tree", "Random Forest (Ensemble)", "Neural Network (MLP)"]
 )
+
 
 ##############################################
 # DATASET HANDLING
@@ -125,22 +127,30 @@ X_test_s = scaler.transform(X_test)
 # Train Models
 ##############################################
 def build_model(name):
+
     if name == "Linear Regression":
         model = LinearRegression()
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
 
     elif name == "Decision Tree":
         model = DecisionTreeRegressor(max_depth=8)
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
 
-    else:
+    elif name == "Random Forest (Ensemble)":
         model = RandomForestRegressor(n_estimators=220, random_state=42)
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
+
+    else:  # Neural Network
+        model = MLPRegressor(
+            hidden_layer_sizes=(64, 32),
+            activation="relu",
+            solver="adam",
+            max_iter=800,
+            random_state=42
+        )
+
+    model.fit(X_train, y_train)
+    preds = model.predict(X_test)
 
     return model, preds
+
 
 model, preds = build_model(model_choice)
 
@@ -668,12 +678,17 @@ blind_df["tree"] = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train).pred
 blind_df["rf"] = RandomForestRegressor(
     n_estimators=200, random_state=42
 ).fit(X_train, y_train).predict(X_test)
+blind_df["nn"] = MLPRegressor(
+    hidden_layer_sizes=(64, 32),
+    max_iter=800,
+    random_state=42
+).fit(X_train, y_train).predict(X_test)
 
 
 # ==========================================
 # CMBS FUNCTION
 # ==========================================
-def cmbs_check(df, group_col, preds=["lr", "tree", "rf"], threshold=0.25):
+def cmbs_check(df, group_col, preds=["lr", "tree", "rf","nn"], threshold=0.25):
 
     results = {}
 
