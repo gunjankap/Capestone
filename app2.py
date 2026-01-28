@@ -478,6 +478,96 @@ ax.set_ylabel("")
 plt.tight_layout()
 st.pyplot(fig)
 
+##############################################
+# FIGURE 4.1 — AGGREGATE BASELINE MODEL COMPARISON
+##############################################
+
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        Figure 4.1: Aggregate Baseline Performance Comparison Across Models
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="font-size:13px; padding:10px;
+                background:#f7f9fc;
+                border-left:5px solid #2e7fe8;
+                border-radius:8px;">
+    In addition to performance, baseline evaluation revealed substantial agreement
+    across models. Despite architectural differences, models frequently produced
+    similar predictions for identical inputs. At this stage, agreement is treated
+    as an observation rather than validation.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Train All Models for Baseline Comparison
+# ----------------------------------------------------
+from sklearn.neural_network import MLPRegressor
+
+baseline_models = {
+    "Linear Regression": LinearRegression(),
+    "Decision Tree": DecisionTreeRegressor(max_depth=8),
+    "Random Forest": RandomForestRegressor(n_estimators=200, random_state=42),
+    "Neural Network": MLPRegressor(hidden_layer_sizes=(64,32),
+                                   max_iter=800,
+                                   random_state=42)
+}
+
+results = []
+
+for name, mdl in baseline_models.items():
+    mdl.fit(X_train, y_train)
+    pred = mdl.predict(X_test)
+
+    rmse_val = np.sqrt(mean_squared_error(y_test, pred))
+    r2_val = r2_score(y_test, pred)
+
+    results.append({
+        "Model": name,
+        "RMSE": rmse_val,
+        "R2 Score": r2_val
+    })
+
+# Create results dataframe
+perf_df = pd.DataFrame(results)
+
+# ----------------------------------------------------
+# Plot Performance Comparison
+# ----------------------------------------------------
+fig, ax = plt.subplots(figsize=(7,4))
+
+# RMSE bar plot
+sns.barplot(
+    data=perf_df,
+    x="Model",
+    y="RMSE",
+    ax=ax
+)
+
+ax.set_title("Baseline RMSE Comparison Across Models", fontsize=11)
+ax.set_ylabel("RMSE (Lower is Better)")
+ax.set_xlabel("")
+ax.tick_params(axis='x', rotation=20)
+
+st.pyplot(fig)
+
+# ----------------------------------------------------
+# Display R² as Table (Compact)
+# ----------------------------------------------------
+st.markdown("### Baseline R² Scores (Higher is Better)")
+
+st.dataframe(
+    perf_df[["Model", "R2 Score"]].sort_values("R2 Score", ascending=False),
+    use_container_width=True,
+    height=180
+)
 
 ##############################################
 # BLIND SPOT ANALYSIS
