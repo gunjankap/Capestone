@@ -797,3 +797,133 @@ st.markdown("""
 ✨ Analysis Completed Successfully — Results Ready!
 </div>
 """, unsafe_allow_html=True)
+
+
+
+
+##############################################
+# FIGURE 6.1 — CMBS FRAMEWORK OVERVIEW
+##############################################
+
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        Figure 6.1: CMBS Framework Overview
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+fig, ax = plt.subplots(figsize=(8,5))
+ax.axis("off")
+
+# --- Title Box ---
+ax.text(0.5, 0.92, "Collective Model Blind Spot (CMBS) Framework",
+        ha="center", fontsize=14, fontweight="bold")
+
+# --- Model Boxes ---
+models = ["Linear Model", "Tree Model", "Ensemble Model", "Neural Network"]
+x_pos = [0.15, 0.38, 0.62, 0.85]
+
+for i, m in enumerate(models):
+    ax.text(x_pos[i], 0.78, m,
+            ha="center",
+            bbox=dict(boxstyle="round,pad=0.3", fc="lightgray"))
+
+# --- Subgroup Box ---
+ax.text(0.5, 0.62, "Test Data Subgroup",
+        ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="#d6eaff"))
+
+# Arrows down from models
+for x in x_pos:
+    ax.annotate("", xy=(x, 0.67), xytext=(x, 0.75),
+                arrowprops=dict(arrowstyle="->", lw=1.5))
+
+# --- Prediction Outputs ---
+ax.text(0.2, 0.42, "LR Predictions\nRMSE ↑",
+        ha="center",
+        bbox=dict(boxstyle="round", fc="#ffe6e6"))
+
+ax.text(0.5, 0.42, "Tree Predictions\nRMSE ↑",
+        ha="center",
+        bbox=dict(boxstyle="round", fc="#ffe6e6"))
+
+ax.text(0.8, 0.42, "RF / NN Predictions\nRMSE ↑",
+        ha="center",
+        bbox=dict(boxstyle="round", fc="#ffe6e6"))
+
+# --- Compare RMSE Box ---
+ax.text(0.5, 0.25, "Compare Subgroup RMSE Across Models",
+        ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="#fff2cc"))
+
+# Arrow
+ax.annotate("", xy=(0.5, 0.32), xytext=(0.5, 0.38),
+            arrowprops=dict(arrowstyle="->", lw=2))
+
+# --- Final Output Box ---
+ax.text(0.5, 0.1, "⚠ Identify Collective Blind Spot",
+        ha="center",
+        fontsize=12,
+        bbox=dict(boxstyle="round,pad=0.4", fc="#ffcccc"))
+
+st.pyplot(fig)
+
+st.caption(
+    "Figure 6.1: CMBS Framework Overview — Multiple independent models are compared across subgroups to detect shared failure regions."
+)
+##############################################
+# FIGURE 6.2 — CONCEPTUAL COLLECTIVE BLIND SPOT
+##############################################
+
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        Figure 6.2: Conceptual Collective Blind Spot
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+fig, ax = plt.subplots(figsize=(6,6))
+ax.axis("off")
+
+# --- Draw concentric zones ---
+safe = plt.Circle((0.5, 0.5), 0.42, color="#b6f2b6", ec="black", lw=1.5)
+agree = plt.Circle((0.5, 0.5), 0.28, color="#ffe39f", ec="black", lw=1.5)
+blind = plt.Circle((0.5, 0.5), 0.14, color="#ff7f7f", ec="black", lw=1.5)
+
+ax.add_patch(safe)
+ax.add_patch(agree)
+ax.add_patch(blind)
+
+# --- Labels ---
+ax.text(0.5, 0.75, "Safe Zone\nAccurate Predictions",
+        ha="center", fontsize=11, fontweight="bold")
+
+ax.text(0.5, 0.58, "Agreement Region\nLow Error Across Models",
+        ha="center", fontsize=10)
+
+ax.text(0.5, 0.48, "Blind Spot Zone\nHigh Error for ALL Models",
+        ha="center", fontsize=10, color="white", fontweight="bold")
+
+# --- Model arrows into blind spot ---
+ax.annotate("Model A", xy=(0.55,0.52), xytext=(0.85,0.60),
+            arrowprops=dict(arrowstyle="->", lw=2))
+
+ax.annotate("Model B", xy=(0.55,0.50), xytext=(0.85,0.50),
+            arrowprops=dict(arrowstyle="->", lw=2))
+
+ax.annotate("Model C", xy=(0.55,0.48), xytext=(0.85,0.40),
+            arrowprops=dict(arrowstyle="->", lw=2))
+
+# Warning symbol
+ax.text(0.5, 0.36, "⚠", ha="center", fontsize=22)
+
+st.pyplot(fig)
+
+st.caption(
+    "Figure 6.2: Conceptual Collective Blind Spot — Even when models agree, a central zone may exist where all fail together due to shared reasoning limitations."
+)
+
