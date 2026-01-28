@@ -570,6 +570,105 @@ st.dataframe(
 )
 
 ##############################################
+# FIGURE 4.3 — MODEL PERFORMANCE UNDER STRESS CONDITIONS
+##############################################
+
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        Figure 4.3: Model Performance Under Stress Conditions
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="font-size:13px; padding:10px;
+                background:#f4f6fc;
+                border-left:5px solid #d9534f;
+                border-radius:8px;">
+    Baseline accuracy often masks fragility. This figure evaluates model robustness
+    under stress by introducing perturbations into input data. The resulting RMSE
+    degradation highlights vulnerability and motivates blind spot analysis.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Step 1: Define Stress Test Levels (Noise Injection)
+# ----------------------------------------------------
+stress_levels = [0.0, 0.05, 0.10, 0.20]  # % noise
+results = []
+
+from sklearn.neural_network import MLPRegressor
+
+stress_models = {
+    "Linear Regression": LinearRegression(),
+    "Decision Tree": DecisionTreeRegressor(max_depth=8),
+    "Random Forest": RandomForestRegressor(n_estimators=200, random_state=42),
+    "Neural Network": MLPRegressor(hidden_layer_sizes=(64,32),
+                                   max_iter=800,
+                                   random_state=42)
+}
+
+# ----------------------------------------------------
+# Step 2: Evaluate Each Model Under Stress
+# ----------------------------------------------------
+for noise in stress_levels:
+
+    # Create stressed version of X_test
+    X_stress = X_test.copy()
+
+    # Add Gaussian noise to numeric inputs
+    X_stress = X_stress + noise * np.random.normal(0, 1, X_stress.shape)
+
+    for name, mdl in stress_models.items():
+        mdl.fit(X_train, y_train)
+        preds_stress = mdl.predict(X_stress)
+
+        rmse_val = np.sqrt(mean_squared_error(y_test, preds_stress))
+
+        results.append({
+            "Model": name,
+            "Stress Level": f"{int(noise*100)}% Noise",
+            "RMSE": rmse_val
+        })
+
+stress_df = pd.DataFrame(results)
+
+# ----------------------------------------------------
+# Step 3: Performance Degradation Plot
+# ----------------------------------------------------
+fig, ax = plt.subplots(figsize=(8,4))
+
+sns.lineplot(
+    data=stress_df,
+    x="Stress Level",
+    y="RMSE",
+    hue="Model",
+    marker="o",
+    ax=ax
+)
+
+ax.set_title("Performance Degradation Under Increasing Stress", fontsize=11)
+ax.set_xlabel("Stress Condition (Noise Injected into Inputs)")
+ax.set_ylabel("RMSE (Higher = Worse Performance)")
+ax.grid(True, linestyle="--", alpha=0.4)
+
+st.pyplot(fig)
+
+# ----------------------------------------------------
+# Caption
+# ----------------------------------------------------
+st.caption(
+    "Figure 4.3: Model performance degradation under stress conditions. "
+    "As noise increases, error rises unevenly across architectures, revealing robustness gaps."
+)
+
+
+##############################################
 # BLIND SPOT ANALYSIS
 ##############################################
 st.markdown(
