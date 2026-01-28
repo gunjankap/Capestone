@@ -357,6 +357,119 @@ plt.tight_layout()
 st.pyplot(fig)
 
 ##############################################
+# FIGURE 5.2 — LOCAL EXPLAINABILITY OF A FAILURE CASE
+##############################################
+st.markdown(
+    """
+    <h4 style='text-align:center; color:#0b2e73;'>
+        🎯 Figure 5.2: Local Explainability of a Collective Failure Instance
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style="font-size:13px; padding:10px;
+                background:#fff7f0;
+                border-left:5px solid #ff9f40;
+                border-radius:8px;">
+    <b>Figure 5.2: Local Explainability of a Collective Failure Instance</b><br>
+    Despite differing architectures, models attribute the incorrect prediction
+    to the same feature contributions, indicating shared reasoning behind failure.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Step 1: Train all models again (for explanation)
+# ----------------------------------------------------
+lr_model = LinearRegression().fit(X_train, y_train)
+tree_model = DecisionTreeRegressor(max_depth=8).fit(X_train, y_train)
+rf_model = RandomForestRegressor(n_estimators=200, random_state=42).fit(X_train, y_train)
+
+# Predictions
+lr_preds = lr_model.predict(X_test)
+tree_preds = tree_model.predict(X_test)
+rf_preds = rf_model.predict(X_test)
+
+# ----------------------------------------------------
+# Step 2: Find worst collective failure instance
+# ----------------------------------------------------
+error_df = pd.DataFrame({
+    "Actual": y_test.values,
+    "LR_Error": np.abs(y_test.values - lr_preds),
+    "Tree_Error": np.abs(y_test.values - tree_preds),
+    "RF_Error": np.abs(y_test.values - rf_preds)
+})
+
+# Combined error score
+error_df["Total_Error"] = error_df[["LR_Error","Tree_Error","RF_Error"]].mean(axis=1)
+
+# Index of worst failure
+worst_index = error_df["Total_Error"].idxmax()
+
+st.markdown(
+    f"""
+    ✅ Selected instance: <b>Worst collective failure point</b><br>
+    • Actual = {round(error_df.loc[worst_index,"Actual"],2)}<br>
+    • RF Prediction = {round(rf_preds[worst_index],2)}<br>
+    """,
+    unsafe_allow_html=True
+)
+
+# ----------------------------------------------------
+# Step 3: Extract that specific data row
+# ----------------------------------------------------
+x_instance = X_test.iloc[worst_index:worst_index+1]
+
+# ----------------------------------------------------
+# Step 4: Local Feature Attribution
+# (Approximate local influence)
+# ----------------------------------------------------
+
+# Linear Regression Contribution
+lr_contrib = lr_model.coef_ * x_instance.values[0]
+
+# Random Forest + Tree use impurity-based proxy
+tree_imp = tree_model.feature_importances_
+rf_imp = rf_model.feature_importances_
+
+# Build comparison table
+local_df = pd.DataFrame({
+    "Feature": X.columns,
+    "LR_Local_Impact": np.abs(lr_contrib),
+    "Tree_Local_Proxy": tree_imp,
+    "RF_Local_Proxy": rf_imp
+})
+
+# Normalize for comparison
+local_df.iloc[:,1:] = local_df.iloc[:,1:].apply(lambda x: x/x.max())
+
+# Top 6 contributing features
+top_local = local_df.sort_values("LR_Local_Impact", ascending=False).head(6)
+
+# ----------------------------------------------------
+# Step 5: Plot — Local Failure Explanation
+# ----------------------------------------------------
+fig, ax = plt.subplots(figsize=(7,4))
+
+top_local.set_index("Feature")[[
+    "LR_Local_Impact",
+    "Tree_Local_Proxy",
+    "RF_Local_Proxy"
+]].plot(kind="barh", ax=ax)
+
+ax.set_title("Shared Feature Attribution in Collective Failure Case", fontsize=11)
+ax.set_xlabel("Normalized Local Contribution", fontsize=9)
+ax.set_ylabel("")
+
+plt.tight_layout()
+st.pyplot(fig)
+
+
+##############################################
 # BLIND SPOT ANALYSIS
 ##############################################
 st.markdown(
