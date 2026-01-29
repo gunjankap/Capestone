@@ -299,7 +299,7 @@ if model_choice == "Random Forest (Ensemble)":
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        🌍 Figure 5.1: Global Feature Influence Across Models
+        🌍 Global Feature Influence Across Models
     </h4>
     """,
     unsafe_allow_html=True
@@ -311,7 +311,7 @@ st.markdown(
                 background:#f7f9fc;
                 border-left:5px solid #2e7fe8;
                 border-radius:8px;">
-    <b>Figure 5.1: Global Feature Influence Across Models in High-Agreement Regions</b><br>
+    <b> Global Feature Influence Across Models in High-Agreement Regions</b><br>
     The figure shows that different model families rely on the same dominant features,
     explaining convergence in predictions despite architectural differences.
     </div>
@@ -372,7 +372,7 @@ st.pyplot(fig)
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        🎯 Figure 5.2: Local Explainability of a Collective Failure Instance
+        🎯 Local Explainability of a Collective Failure Instance
     </h4>
     """,
     unsafe_allow_html=True
@@ -384,7 +384,7 @@ st.markdown(
                 background:#fff7f0;
                 border-left:5px solid #ff9f40;
                 border-radius:8px;">
-    <b>Figure 5.2: Local Explainability of a Collective Failure Instance</b><br>
+    <b> Local Explainability of a Collective Failure Instance</b><br>
     Despite differing architectures, models attribute the incorrect prediction
     to the same feature contributions, indicating shared reasoning behind failure.
     </div>
@@ -485,7 +485,7 @@ st.pyplot(fig)
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 4.1: Aggregate Baseline Performance Comparison Across Models
+        Aggregate Baseline Performance Comparison Across Models
     </h4>
     """,
     unsafe_allow_html=True
@@ -570,13 +570,13 @@ st.dataframe(
 )
 
 ##############################################
-# FIGURE 4.3 — MODEL PERFORMANCE UNDER STRESS CONDITIONS
+# FIGURE MODEL PERFORMANCE UNDER STRESS CONDITIONS
 ##############################################
 
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 4.3: Model Performance Under Stress Conditions
+        Model Performance Under Stress Conditions
     </h4>
     """,
     unsafe_allow_html=True
@@ -663,7 +663,7 @@ st.pyplot(fig)
 # Caption
 # ----------------------------------------------------
 st.caption(
-    "Figure 4.3: Model performance degradation under stress conditions. "
+    "Model performance degradation under stress conditions. "
     "As noise increases, error rises unevenly across architectures, revealing robustness gaps."
 )
 
@@ -692,7 +692,7 @@ blind_df["pred"] = preds
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 4.2: Prediction Agreement Across Models Under Baseline Conditions
+        Prediction Agreement Across Models Under Baseline Conditions
     </h4>
     """,
     unsafe_allow_html=True
@@ -802,7 +802,7 @@ with c3:
 # Caption
 # ----------------------------------------------------
 st.caption(
-    "Figure 4.2: Prediction agreement visualization across model families. "
+    "Prediction agreement visualization across model families. "
     "High correlation indicates convergence in outputs, motivating deeper blind spot investigation."
 )
 
@@ -1115,7 +1115,7 @@ st.markdown("""
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 4.5: Illustration of Overlapping Failure Regions Across Models
+        Illustration of Overlapping Failure Regions Across Models
     </h4>
     """,
     unsafe_allow_html=True
@@ -1221,7 +1221,7 @@ st.pyplot(fig)
 # Caption
 # ----------------------------------------------------
 st.caption(
-    "Figure 4.5: Overlapping failure regions across models. Highlighted instances "
+    "Overlapping failure regions across models. Highlighted instances "
     "indicate structurally difficult zones where all model families exhibit elevated error."
 )
 
@@ -1233,7 +1233,7 @@ st.caption(
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 6.1: CMBS Framework Overview
+        CMBS Framework Overview
     </h4>
     """,
     unsafe_allow_html=True
@@ -1296,7 +1296,7 @@ ax.text(0.5, 0.1, "⚠ Identify Collective Blind Spot",
 st.pyplot(fig)
 
 st.caption(
-    "Figure 6.1: CMBS Framework Overview — Multiple independent models are compared across subgroups to detect shared failure regions."
+    "CMBS Framework Overview — Multiple independent models are compared across subgroups to detect shared failure regions."
 )
 ##############################################
 # FIGURE 6.2 — CONCEPTUAL COLLECTIVE BLIND SPOT
@@ -1305,7 +1305,7 @@ st.caption(
 st.markdown(
     """
     <h4 style='text-align:center; color:#0b2e73;'>
-        Figure 6.2: Conceptual Collective Blind Spot
+        Conceptual Collective Blind Spot
     </h4>
     """,
     unsafe_allow_html=True
@@ -1349,6 +1349,6 @@ ax.text(0.5, 0.36, "⚠", ha="center", fontsize=22)
 st.pyplot(fig)
 
 st.caption(
-    "Figure 6.2: Conceptual Collective Blind Spot — Even when models agree, a central zone may exist where all fail together due to shared reasoning limitations."
+    "Conceptual Collective Blind Spot — Even when models agree, a central zone may exist where all fail together due to shared reasoning limitations."
 )
 
